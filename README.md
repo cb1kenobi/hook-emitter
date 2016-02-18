@@ -4,6 +4,7 @@
 [![NPM Downloads][downloads-image]][downloads-url]
 [![Travis CI Build][travis-image]][travis-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
+[![Code Climate][codeclimate-image]][codeclimate-url]
 
 Event emitter with support for asynchronous handlers and a sweet "hook"
 mechanism.
@@ -167,3 +168,5 @@ THE SOFTWARE.
 [travis-url]: https://travis-ci.org/cb1kenobi/hook-emitter
 [coveralls-image]: https://img.shields.io/coveralls/cb1kenobi/hook-emitter/master.svg
 [coveralls-url]: https://coveralls.io/r/cb1kenobi/hook-emitter
+[codeclimate-image]: https://img.shields.io/codeclimate/github/cb1kenobi/hook-emitter.svg
+[codeclimate-url]: https://codeclimate.com/github/cb1kenobi/hook-emitter
