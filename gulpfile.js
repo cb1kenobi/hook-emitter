@@ -61,9 +61,7 @@ gulp.task('test', ['lint-src', 'lint-test'], function () {
 	return gulp.src(['src/**/*.js', 'test/**/*.js'])
 		.pipe($.plumber())
 		.pipe($.debug({ title: 'test' }))
-		.pipe($.sourcemaps.init())
 		.pipe($.babel())
-		.pipe($.sourcemaps.write('.'))
 		.pipe($.injectModules())
 		.pipe($.filter('**/*.js'))
 		.pipe($.mocha());
