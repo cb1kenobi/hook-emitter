@@ -5,6 +5,8 @@
 [![Travis CI Build][travis-image]][travis-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
 [![Code Climate][codeclimate-image]][codeclimate-url]
+[![Deps][david-image]][david-url]
+[![Dev Deps][david-dev-image]][david-dev-url]
 
 Event emitter with support for asynchronous handlers and a sweet "hook"
 mechanism.
@@ -170,3 +172,7 @@ THE SOFTWARE.
 [coveralls-url]: https://coveralls.io/r/cb1kenobi/hook-emitter
 [codeclimate-image]: https://img.shields.io/codeclimate/github/cb1kenobi/hook-emitter.svg
 [codeclimate-url]: https://codeclimate.com/github/cb1kenobi/hook-emitter
+[david-image]: https://img.shields.io/david/cb1kenobi/hook-emitter.svg
+[david-url]: https://david-dm.org/cb1kenobi/hook-emitter
+[david-dev-image]: https://img.shields.io/david/dev/cb1kenobi/hook-emitter.svg
+[david-dev-url]: https://david-dm.org/cb1kenobi/hook-emitter#info=devDependencies
