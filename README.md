@@ -15,7 +15,7 @@ mechanism.
 
 ## Installation
 
-	npm install hook-emitter
+    npm install hook-emitter
 
 ## Examples
 
@@ -29,12 +29,12 @@ import { HookEmitter } from 'hook-emitter';
 const emitter = new HookEmitter();
 
 emitter.on('sum', (x, y) => {
-	return new Promise((resolve, reject) => {
-		setTimeout(() => {
-			console.log('the sum of ' + x + ' + ' + y + ' = ' + (x + y));
-			resolve();
-		}, 100);
-	});
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            console.log('the sum of ' + x + ' + ' + y + ' = ' + (x + y));
+            resolve();
+        }, 100);
+    });
 });
 
 emitter.emit('sum', 3, 7);
@@ -46,25 +46,25 @@ Hook example:
 const emitter = new HookEmitter();
 
 const hookedSum = emitter.hook('sum', (x, y) => {
-	return new Promise((resolve, reject) => {
-		setTimeout(() => {
-			// x = 6, y = 14
-			resolve(x + y);
-		}, 100);
-	});
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            // x = 6, y = 14
+            resolve(x + y);
+        }, 100);
+    });
 });
 
 emitter.on('sum', evt => {
-	console.log('doubling x and y');
-	evt.args[0] *= 2;
-	evt.args[1] *= 2;
+    console.log('doubling x and y');
+    evt.args[0] *= 2;
+    evt.args[1] *= 2;
 });
 
 hookedSum(3, 7)
-	.then(result => {
-		console.log('The sum of 6 + 14 = ' + result);
-	})
-	.catch(err => console.error);
+    .then(result => {
+        console.log('The sum of 6 + 14 = ' + result);
+    })
+    .catch(err => console.error);
 ```
 
 Chaining multiple hooked functions example:
@@ -73,16 +73,16 @@ Chaining multiple hooked functions example:
 const emitter = new HookEmitter();
 
 Promise.resolve()
-	.then(emitter.hook('step1', () => {
-		console.log('step 1');
-	}))
-	.then(emitter.hook('step2', () => {
-		console.log('step 2');
-	}))
-	.then(emitter.hook('step3', () => {
-		console.log('step 3');
-	}))
-	.catch(err => console.error);
+    .then(emitter.hook('step1', () => {
+        console.log('step 1');
+    }))
+    .then(emitter.hook('step2', () => {
+        console.log('step 2');
+    }))
+    .then(emitter.hook('step3', () => {
+        console.log('step 3');
+    }))
+    .catch(err => console.error);
 ```
 
 ## API
