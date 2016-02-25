@@ -60,10 +60,11 @@ gulp.task('lint-test', function () {
 gulp.task('test', ['lint-src', 'lint-test'], function () {
 	return gulp.src(['src/**/*.js', 'test/**/*.js'])
 		.pipe($.plumber())
-		.pipe($.debug({ title: 'test' }))
+		.pipe($.debug({ title: 'compile' }))
 		.pipe($.babel())
 		.pipe($.injectModules())
-		.pipe($.filter('**/*.js'))
+		.pipe($.filter('test/**/*.js'))
+		.pipe($.debug({ title: 'test' }))
 		.pipe($.mocha());
 });
 

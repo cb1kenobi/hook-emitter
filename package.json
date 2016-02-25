@@ -1,6 +1,6 @@
 {
   "name": "hook-emitter",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Event emitter with support for asynchronous handlers and a sweet function hook mechanism.",
   "main": "./dist/index.js",
   "author": "Chris Barber <chris@cb1inc.com> (https://github.com/cb1kenobi)",
@@ -31,7 +31,7 @@
     "gulp-babel-istanbul": "^0.12.0",
     "gulp-debug": "^2.1.2",
     "gulp-eslint": "^2.0.0",
-    "gulp-filter": "^3.0.1",
+    "gulp-filter": "git+https://github.com/appcelerator/gulp-filter.git#cwd-fix",
     "gulp-inject-modules": "^0.1.0",
     "gulp-load-plugins": "^1.2.0",
     "gulp-mocha": "^2.2.0",
@@ -43,5 +43,8 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/cb1kenobi/hook-emitter.git"
+  },
+  "engines": {
+    "node": ">=4.0.0"
   }
 }
