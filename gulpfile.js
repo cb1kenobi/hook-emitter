@@ -60,7 +60,7 @@ gulp.task('lint-test', function () {
 gulp.task('test', ['lint-src', 'lint-test'], function () {
 	return gulp.src(['src/**/*.js', 'test/**/*.js'])
 		.pipe($.plumber())
-		.pipe($.debug({ title: 'compile' }))
+		.pipe($.debug({ title: 'build' }))
 		.pipe($.babel())
 		.pipe($.injectModules())
 		.pipe($.filter('test/**/*.js'))
