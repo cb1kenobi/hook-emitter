@@ -1,8 +1,9 @@
-.DS_Store
 ._*
-npm-debug.log
-node_modules
-src
+.DS_Store
 .git*
-coverage
 .travis.yml
+coverage
+docs
+node_modules
+npm-debug.log
+src

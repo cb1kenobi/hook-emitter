@@ -3,28 +3,34 @@
 const $ = require('gulp-load-plugins')();
 const del = require('del');
 const gulp = require('gulp');
+const manifest = require('./package.json');
 const path = require('path');
 
 const coverageDir = path.join(__dirname, 'coverage');
 const distDir = path.join(__dirname, 'dist');
+const docsDir = path.join(__dirname, 'docs');
 
 /*
  * Clean tasks
  */
-gulp.task('clean', ['clean-build', 'clean-coverage']);
+ gulp.task('clean', ['clean-coverage', 'clean-dist', 'clean-docs']);
 
-gulp.task('clean-build', function (done) {
-	del([distDir]).then(function () { done(); });
-});
+ gulp.task('clean-coverage', function (done) {
+ 	del([coverageDir]).then(function () { done(); });
+ });
 
-gulp.task('clean-coverage', function (done) {
-	del([coverageDir]).then(function () { done(); });
-});
+ gulp.task('clean-dist', function (done) {
+ 	del([distDir]).then(function () { done(); });
+ });
+
+ gulp.task('clean-docs', function (done) {
+ 	del([docsDir]).then(function () { done(); });
+ });
 
 /*
  * build tasks
  */
-gulp.task('build', ['clean-build', 'lint-src'], function () {
+gulp.task('build', ['clean-dist', 'lint-src'], function () {
 	return gulp
 		.src('src/**/*.js')
 		.pipe($.plumber())
@@ -33,6 +39,20 @@ gulp.task('build', ['clean-build', 'lint-src'], function () {
 		.pipe($.babel())
 		.pipe($.sourcemaps.write('.'))
 		.pipe(gulp.dest(distDir));
+});
+
+gulp.task('docs', ['lint-src', 'clean-docs'], function () {
+	return gulp.src('src')
+		.pipe($.plumber())
+		.pipe($.debug({ title: 'docs' }))
+		.pipe($.esdoc({
+			// debug: true,
+			destination: docsDir,
+			plugins: [
+				{ name: "esdoc-es7-plugin" }
+			],
+			title: manifest.name
+		}));
 });
 
 /*
@@ -82,7 +102,6 @@ gulp.task('coverage', ['lint-src', 'lint-test', 'clean-coverage'], function (cb)
 				.pipe($.injectModules())
 				.pipe($.mocha())
 				.pipe($.babelIstanbul.writeReports())
-				.pipe($.babelIstanbul.enforceThresholds({ thresholds: { global: 90 } }))
 				.on('end', cb);
 		});
 });
