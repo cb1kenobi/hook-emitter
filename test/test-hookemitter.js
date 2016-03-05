@@ -242,6 +242,22 @@ describe('off', () => {
 		expect(emitter.events.size).to.equal(0);
 	});
 
+	it('should remove only remove first duplicate listener', () => {
+		let emitter = new HookEmitter();
+
+		function foo() {}
+
+		emitter.on('foo', foo);
+		emitter.on('foo', foo);
+		expect(emitter.events.size).to.equal(1);
+
+		emitter.off('foo', foo);
+		expect(emitter.events.size).to.equal(1);
+
+		emitter.off('foo', foo);
+		expect(emitter.events.size).to.equal(0);
+	});
+
 	it('should throw exception if event is invalid', () => {
 		expect(() => {
 			let emitter = new HookEmitter();

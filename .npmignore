@@ -1,9 +1,13 @@
 ._*
+.babelrc
 .DS_Store
+.eslintrc
 .git*
 .travis.yml
 coverage
 docs
+gulpfile.js
 node_modules
 npm-debug.log
 src
+test

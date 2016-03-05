@@ -113,6 +113,7 @@ export class HookEmitter {
 		while (evt = events.shift()) {
 			if (!listener) {
 				// remove them all
+				console.log('removing all');
 				this._events.delete(evt);
 				continue;
 			}
@@ -122,15 +123,18 @@ export class HookEmitter {
 				continue;
 			}
 
-			for (let i = 0, l = listeners.length; i < l; i++) {
+			const len = listeners.length;
+
+			if (len === 1 && listeners[0] === listener) {
+				// there was only one event and this was it, so
+				// nuke the entire event from the map
+				this._events.delete(evt);
+				continue;
+			}
+
+			for (let i = 0; i < len; i++) {
 				if (listeners[i] === listener) {
-					if (l === 1) {
-						// there was only one event and this was it, so
-						// nuke the entire event from the map
-						this._events.delete(evt);
-					} else {
-						listeners.splice(i, 1);
-					}
+					listeners.splice(i, 1);
 					break;
 				}
 			}
