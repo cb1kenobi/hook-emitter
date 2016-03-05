@@ -113,7 +113,6 @@ export class HookEmitter {
 		while (evt = events.shift()) {
 			if (!listener) {
 				// remove them all
-				console.log('removing all');
 				this._events.delete(evt);
 				continue;
 			}
