@@ -49,7 +49,7 @@ gulp.task('docs', ['lint-src', 'clean-docs'], function () {
 			// debug: true,
 			destination: docsDir,
 			plugins: [
-				{ name: "esdoc-es7-plugin" }
+				{ name: 'esdoc-es7-plugin' }
 			],
 			title: manifest.name
 		}));
