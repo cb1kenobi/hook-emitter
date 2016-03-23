@@ -13,19 +13,19 @@ const docsDir = path.join(__dirname, 'docs');
 /*
  * Clean tasks
  */
- gulp.task('clean', ['clean-coverage', 'clean-dist', 'clean-docs']);
+gulp.task('clean', ['clean-coverage', 'clean-dist', 'clean-docs']);
 
- gulp.task('clean-coverage', function (done) {
- 	del([coverageDir]).then(function () { done(); });
- });
+gulp.task('clean-coverage', function (done) {
+	del([coverageDir]).then(function () { done(); });
+});
 
- gulp.task('clean-dist', function (done) {
- 	del([distDir]).then(function () { done(); });
- });
+gulp.task('clean-dist', function (done) {
+    del([distDir]).then(function () { done(); });
+});
 
- gulp.task('clean-docs', function (done) {
- 	del([docsDir]).then(function () { done(); });
- });
+gulp.task('clean-docs', function (done) {
+    del([docsDir]).then(function () { done(); });
+});
 
 /*
  * build tasks

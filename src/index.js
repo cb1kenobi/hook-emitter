@@ -9,6 +9,7 @@ export class HookEmitter {
 	 */
 	constructor() {
 		this._events = new Map();
+		this._links = [];
 	}
 
 	/**
@@ -146,6 +147,7 @@ export class HookEmitter {
 	 * Converts an array of listeners into a promise chain
 	 *
 	 * @param {Object} type - The event type.
+	 * @param {Function} getListeners - A function that returns an array of listeners to compose.
 	 * @param {Function} [callback] - An optional function to call after all listeners have been fired.
 	 * @param {Function} [transform] - An function that transforms a result with the original payload.
 	 * @returns {Function}
@@ -158,11 +160,17 @@ export class HookEmitter {
 
 		// create the function that fetches the events since the list of
 		// listeners may change before the hook is called
-		const getListeners = () => this._events.get(type);
+		const getListeners = () => {
+			const listeners = this._events.get(type) || [];
+			const linkedListeners = this._links.map(link => {
+				return link.emitter.events.get((link.prefix || '') + type) || [];
+			});
+			return listeners.concat.apply(listeners, linkedListeners);
+		};
 
 		// return the wrapped function
 		return (...args) => {
-			const listeners = getListeners() || [];
+			const listeners = getListeners();
 
 			if (!Array.isArray(listeners)) {
 				throw new TypeError('Expected listeners to be an array.');
@@ -174,8 +182,10 @@ export class HookEmitter {
 				}
 			}
 
-			// clone the listeners
-			const _listeners = callback ? listeners.concat(callback) : listeners.slice();
+			if (callback) {
+				listeners.push(callback);
+			}
+
 			let index = -1;
 
 			// start the chain and return its promise
@@ -192,7 +202,7 @@ export class HookEmitter {
 				}
 				index = i;
 
-				let listener = _listeners[i];
+				let listener = listeners[i];
 				if (!listener) {
 					return Promise.resolve(payload);
 				}
@@ -336,5 +346,47 @@ export class HookEmitter {
 
 			return chain(data).then(data => data.args[0].result);
 		};
+	}
+
+	/**
+	 * Links all listeners from another hook emitter into this instance. When an
+	 * event is emitted, it will notify all of this instance's listeners, then
+	 * notify all linked hook emitter's listeners. Same applies to hooked
+	 * functions.
+	 *
+	 * @param {HookEmitter} emitter - A hook emitter to link to.
+	 * @param {String} [prefix] - A string to prefix to all emitted event names.
+	 * @returns {HookEmitter}
+	 * @access public
+	 */
+	link(emitter, prefix) {
+		if (!(emitter instanceof HookEmitter)) {
+			throw new TypeError('Expected argument to be a HookEmitter.');
+		}
+
+		this._links.push({ emitter, prefix });
+
+		return this;
+	}
+
+	/**
+	 * Unlinks all listeners from another hook emitter from this instance.
+	 *
+	 * @param {HookEmitter} emitter - A hook emitter to unlink.
+	 * @returns {HookEmitter}
+	 * @access public
+	 */
+	unlink(emitter) {
+		if (!(emitter instanceof HookEmitter)) {
+			throw new TypeError('Expected argument to be a HookEmitter.');
+		}
+
+		for (let i = 0; i < this._links.length; i++) {
+			if (this._links[i].emitter === emitter) {
+				this._links.splice(i--, 1);
+			}
+		}
+
+		return this;
 	}
 }

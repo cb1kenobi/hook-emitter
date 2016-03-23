@@ -1008,3 +1008,355 @@ describe('hook', () => {
 		}).to.throw('Expected hooked function to be a function.');
 	});
 });
+
+describe('link', () => {
+	it('should link emitted events (no-prefix) and unlink', done => {
+		const primary = new HookEmitter();
+		const secondary = new HookEmitter();
+		let primaryCount = 0;
+		let secondaryCount = 0;
+
+		primary.on('foo', () => {
+			primaryCount++;
+		});
+
+		secondary.on('foo', () => {
+			secondaryCount++;
+		});
+
+		Promise.resolve()
+			.then(() => primary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(secondaryCount).to.equal(0);
+			})
+			.then(() => secondary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(secondaryCount).to.equal(1);
+			})
+			.then(() => primary.link(secondary))
+			.then(() => secondary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(secondaryCount).to.equal(2);
+			})
+			.then(() => primary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(2);
+				expect(secondaryCount).to.equal(3);
+			})
+			.then(() => primary.unlink(secondary))
+			.then(() => primary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(3);
+				expect(secondaryCount).to.equal(3);
+			})
+			.then(() => done())
+			.catch(done);
+	});
+
+	it('should link emitted events (prefixed + no match) and unlink', done => {
+		const primary = new HookEmitter();
+		const secondary = new HookEmitter();
+		let primaryCount = 0;
+		let secondaryCount = 0;
+
+		primary.on('foo', () => {
+			primaryCount++;
+		});
+
+		secondary.on('foo', () => {
+			secondaryCount++;
+		});
+
+		Promise.resolve()
+			.then(() => primary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(secondaryCount).to.equal(0);
+			})
+			.then(() => secondary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(secondaryCount).to.equal(1);
+			})
+			.then(() => primary.link(secondary, 'baz:'))
+			.then(() => secondary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(secondaryCount).to.equal(2);
+			})
+			.then(() => primary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(2);
+				expect(secondaryCount).to.equal(2);
+			})
+			.then(() => primary.unlink(secondary))
+			.then(() => primary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(3);
+				expect(secondaryCount).to.equal(2);
+			})
+			.then(() => done())
+			.catch(done);
+	});
+
+	it('should link emitted events (prefixed + match) and unlink', done => {
+		const primary = new HookEmitter();
+		const secondary = new HookEmitter();
+		let primaryCount = 0;
+		let secondaryCount = 0;
+
+		primary.on('foo', () => {
+			primaryCount++;
+		});
+
+		secondary.on('baz:foo', () => {
+			secondaryCount++;
+		});
+
+		Promise.resolve()
+			.then(() => primary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(secondaryCount).to.equal(0);
+			})
+			.then(() => secondary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(secondaryCount).to.equal(0);
+			})
+			.then(() => primary.link(secondary, 'baz:'))
+			.then(() => secondary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(secondaryCount).to.equal(0);
+			})
+			.then(() => primary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(2);
+				expect(secondaryCount).to.equal(1);
+			})
+			.then(() => primary.unlink(secondary))
+			.then(() => primary.emit('foo'))
+			.then(() => {
+				expect(primaryCount).to.equal(3);
+				expect(secondaryCount).to.equal(1);
+			})
+			.then(() => done())
+			.catch(done);
+	});
+
+	it('should link emitted hooks (no-prefix) and unlink', done => {
+		const primary = new HookEmitter();
+		const secondary = new HookEmitter();
+		let primaryCount = 0;
+		let primaryHookCount = 0;
+		let secondaryCount = 0;
+		let secondaryHookCount = 0;
+
+		const primaryHookFn = primary.hook('foo', () => {
+			primaryCount++;
+		});
+
+		const secondaryHookFn = secondary.hook('foo', () => {
+			secondaryCount++;
+		});
+
+		primary.on('foo', evt => {
+			primaryHookCount++;
+		});
+
+		secondary.on('foo', evt => {
+			secondaryHookCount++;
+		});
+
+		Promise.resolve()
+			.then(() => primaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(primaryHookCount).to.equal(1);
+				expect(secondaryCount).to.equal(0);
+				expect(secondaryHookCount).to.equal(0);
+			})
+			.then(() => secondaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(primaryHookCount).to.equal(1);
+				expect(secondaryCount).to.equal(1);
+				expect(secondaryHookCount).to.equal(1);
+			})
+			.then(() => primary.link(secondary))
+			.then(() => secondaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(primaryHookCount).to.equal(1);
+				expect(secondaryCount).to.equal(2);
+				expect(secondaryHookCount).to.equal(2);
+			})
+			.then(() => primaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(2);
+				expect(primaryHookCount).to.equal(2);
+				expect(secondaryCount).to.equal(2);
+				expect(secondaryHookCount).to.equal(3);
+			})
+			.then(() => primary.unlink(secondary))
+			.then(() => primaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(3);
+				expect(primaryHookCount).to.equal(3);
+				expect(secondaryCount).to.equal(2);
+				expect(secondaryHookCount).to.equal(3);
+			})
+			.then(() => done())
+			.catch(done);
+	});
+
+	it('should link emitted hooks (prefixed + no match) and unlink', done => {
+		const primary = new HookEmitter();
+		const secondary = new HookEmitter();
+		let primaryCount = 0;
+		let primaryHookCount = 0;
+		let secondaryCount = 0;
+		let secondaryHookCount = 0;
+
+		const primaryHookFn = primary.hook('foo', () => {
+			primaryCount++;
+		});
+
+		const secondaryHookFn = secondary.hook('foo', () => {
+			secondaryCount++;
+		});
+
+		primary.on('foo', evt => {
+			primaryHookCount++;
+		});
+
+		secondary.on('foo', evt => {
+			secondaryHookCount++;
+		});
+
+		Promise.resolve()
+			.then(() => primaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(primaryHookCount).to.equal(1);
+				expect(secondaryCount).to.equal(0);
+				expect(secondaryHookCount).to.equal(0);
+			})
+			.then(() => secondaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(primaryHookCount).to.equal(1);
+				expect(secondaryCount).to.equal(1);
+				expect(secondaryHookCount).to.equal(1);
+			})
+			.then(() => primary.link(secondary, 'baz:'))
+			.then(() => secondaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(primaryHookCount).to.equal(1);
+				expect(secondaryCount).to.equal(2);
+				expect(secondaryHookCount).to.equal(2);
+			})
+			.then(() => primaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(2);
+				expect(primaryHookCount).to.equal(2);
+				expect(secondaryCount).to.equal(2);
+				expect(secondaryHookCount).to.equal(2);
+			})
+			.then(() => primary.unlink(secondary))
+			.then(() => primaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(3);
+				expect(primaryHookCount).to.equal(3);
+				expect(secondaryCount).to.equal(2);
+				expect(secondaryHookCount).to.equal(2);
+			})
+			.then(() => done())
+			.catch(done);
+	});
+
+	it('should link emitted hooks (prefixed + match) and unlink', done => {
+		const primary = new HookEmitter();
+		const secondary = new HookEmitter();
+		let primaryCount = 0;
+		let primaryHookCount = 0;
+		let secondaryCount = 0;
+		let secondaryHookCount = 0;
+
+		const primaryHookFn = primary.hook('foo', () => {
+			primaryCount++;
+		});
+
+		const secondaryHookFn = secondary.hook('baz:foo', () => {
+			secondaryCount++;
+		});
+
+		primary.on('foo', evt => {
+			primaryHookCount++;
+		});
+
+		secondary.on('baz:foo', evt => {
+			secondaryHookCount++;
+		});
+
+		Promise.resolve()
+			.then(() => primaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(primaryHookCount).to.equal(1);
+				expect(secondaryCount).to.equal(0);
+				expect(secondaryHookCount).to.equal(0);
+			})
+			.then(() => secondaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(primaryHookCount).to.equal(1);
+				expect(secondaryCount).to.equal(1);
+				expect(secondaryHookCount).to.equal(1);
+			})
+			.then(() => primary.link(secondary, 'baz:'))
+			.then(() => secondaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(1);
+				expect(primaryHookCount).to.equal(1);
+				expect(secondaryCount).to.equal(2);
+				expect(secondaryHookCount).to.equal(2);
+			})
+			.then(() => primaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(2);
+				expect(primaryHookCount).to.equal(2);
+				expect(secondaryCount).to.equal(2);
+				expect(secondaryHookCount).to.equal(3);
+			})
+			.then(() => primary.unlink(secondary))
+			.then(() => primaryHookFn())
+			.then(() => {
+				expect(primaryCount).to.equal(3);
+				expect(primaryHookCount).to.equal(3);
+				expect(secondaryCount).to.equal(2);
+				expect(secondaryHookCount).to.equal(3);
+			})
+			.then(() => done())
+			.catch(done);
+	});
+
+	it('should throw exception if link() argument is not a HookEmitter', () => {
+		expect(() => {
+			const emitter = new HookEmitter();
+			emitter.link('foo');
+		}).to.throw('Expected argument to be a HookEmitter.');
+	});
+
+	it('should throw exception if unlink() argument is not a HookEmitter', () => {
+		expect(() => {
+			const emitter = new HookEmitter();
+			emitter.unlink('foo');
+		}).to.throw('Expected argument to be a HookEmitter.');
+	});
+});
