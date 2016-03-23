@@ -138,6 +138,23 @@ Creates a function hook. Returns a `Function` which when called returns a `Promi
    going to be overwritten.
  * `fn` Function - The function being hooked up.
 
+#### `link(emitter, prefix)`
+
+Links another `HookEmitter` to this instance. Useful if you have a class that
+extends a `HookEmitter`, then another `HookEmitter` that you want to receive
+the exact same events.
+
+ * `emitter` HookEmitter - The hook emitter to link to this instance.
+ * `prefix` String (optional) - An optional prefix to prepend to the event name
+   being emitted from all linked emitters.
+
+#### `unlink(emitter)`
+
+Unlinks another `HookEmitter` from this instance. It does the opposite of
+`link()`.
+
+ * `emitter` HookEmitter - The hook emitter to unlink.
+
 ## License
 
 (The MIT License)
