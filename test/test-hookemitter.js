@@ -24,11 +24,11 @@ describe('on', () => {
 		let listeners = emitter.events.get('foo');
 		expect(listeners).to.be.an.array;
 		expect(listeners.length).to.equal(1);
-		expect(listeners).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([foo]);
 	});
 
 	it('should add multiple event listeners', () => {
-		let emitter = new HookEmitter();
+		const emitter = new HookEmitter();
 
 		function foo() {}
 		function bar() {}
@@ -50,16 +50,16 @@ describe('on', () => {
 		let listeners = emitter.events.get('foo');
 		expect(listeners).to.be.an.array;
 		expect(listeners.length).to.equal(4);
-		expect(listeners).to.eql([foo, foo, foo, foo]);
+		expect(listeners.map(p => p.listener)).to.eql([foo, foo, foo, foo]);
 
 		listeners = emitter.events.get('bar');
 		expect(listeners).to.be.an.array;
 		expect(listeners.length).to.equal(4);
-		expect(listeners).to.eql([bar, bar, bar, bar]);
+		expect(listeners.map(p => p.listener)).to.eql([bar, bar, bar, bar]);
 	});
 
 	it('should add multiple events with single listener', () => {
-		let emitter = new HookEmitter();
+		const emitter = new HookEmitter();
 
 		function foo() {}
 
@@ -73,17 +73,17 @@ describe('on', () => {
 		let listeners = emitter.events.get('foo');
 		expect(listeners).to.be.an.array;
 		expect(listeners.length).to.equal(1);
-		expect(listeners).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([foo]);
 
 		listeners = emitter.events.get('bar');
 		expect(listeners).to.be.an.array;
 		expect(listeners.length).to.equal(1);
-		expect(listeners).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([foo]);
 
 		listeners = emitter.events.get('baz');
 		expect(listeners).to.be.an.array;
 		expect(listeners.length).to.equal(1);
-		expect(listeners).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([foo]);
 	});
 
 	it('should throw exception if event is invalid', () => {
@@ -101,6 +101,18 @@ describe('on', () => {
 			let emitter = new HookEmitter();
 			emitter.on('');
 		}).to.throw('Expected event name to be a valid string.');
+	});
+
+	it('should throw exception if priority is invalid', () => {
+		expect(() => {
+			let emitter = new HookEmitter();
+			emitter.on('foo', null);
+		}).to.throw('Expected priority to be a number.');
+
+		expect(() => {
+			let emitter = new HookEmitter();
+			emitter.on('foo', 'bar');
+		}).to.throw('Expected priority to be a number.');
 	});
 
 	it('should throw exception if listener not a function', () => {
@@ -130,7 +142,7 @@ describe('off', () => {
 		let listeners = emitter.events.get('foo');
 		expect(listeners).to.be.an.array;
 		expect(listeners.length).to.equal(1);
-		expect(listeners).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([foo]);
 
 		emitter.off('foo', foo);
 
@@ -152,7 +164,7 @@ describe('off', () => {
 		let listeners = emitter.events.get('foo');
 		expect(listeners).to.be.an.array;
 		expect(listeners.length).to.equal(2);
-		expect(listeners).to.eql([foo, foo]);
+		expect(listeners.map(p => p.listener)).to.eql([foo, foo]);
 
 		emitter.off('foo', foo);
 
@@ -160,7 +172,7 @@ describe('off', () => {
 		expect(emitter.events.has('foo')).to.be.true;
 		listeners = emitter.events.get('foo');
 		expect(listeners.length).to.equal(1);
-		expect(listeners).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([foo]);
 
 		emitter.off('foo', foo);
 
@@ -183,17 +195,17 @@ describe('off', () => {
 		let listeners = emitter.events.get('foo');
 		expect(listeners).to.be.an.array;
 		expect(listeners.length).to.equal(1);
-		expect(listeners).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([foo]);
 
 		listeners = emitter.events.get('bar');
 		expect(listeners).to.be.an.array;
 		expect(listeners.length).to.equal(1);
-		expect(listeners).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([foo]);
 
 		listeners = emitter.events.get('baz');
 		expect(listeners).to.be.an.array;
 		expect(listeners.length).to.equal(1);
-		expect(listeners).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([foo]);
 
 		emitter.off('foo bar', foo);
 
@@ -659,6 +671,27 @@ describe('emit', () => {
 			.then(() => done())
 			.catch(done);
 	});
+
+	it('should call listeners in correct order', done => {
+		const emitter = new HookEmitter();
+		const actual = [];
+		const expected = ['e', 'a', 'b', 'd', 'c', 'f'];
+
+		emitter.on('foo',  100, () => actual.push('a'));
+		emitter.on('foo',   50, () => actual.push('b'));
+		emitter.on('foo',   -1, () => actual.push('c'));
+		emitter.on('foo',       () => actual.push('d'));
+		emitter.on('foo',  150, () => actual.push('e'));
+		emitter.on('foo', -200, () => actual.push('f'));
+
+		emitter
+			.emit('foo')
+			.then(() => {
+				expect(actual).to.deep.equal(expected);
+				done();
+			})
+			.catch(done);
+	});
 });
 
 describe('once', () => {
@@ -710,6 +743,18 @@ describe('once', () => {
 			let emitter = new HookEmitter();
 			emitter.once('');
 		}).to.throw('Expected event name to be a valid string.');
+	});
+
+	it('should throw exception if priority is invalid', () => {
+		expect(() => {
+			let emitter = new HookEmitter();
+			emitter.once('foo', null);
+		}).to.throw('Expected priority to be a number.');
+
+		expect(() => {
+			let emitter = new HookEmitter();
+			emitter.once('foo', 'bar');
+		}).to.throw('Expected priority to be a number.');
 	});
 
 	it('should throw exception if listener not a function', () => {

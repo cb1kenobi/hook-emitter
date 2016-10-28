@@ -101,17 +101,23 @@ over using a for-of loop.
 ### Methods
 
 #### `on(event, listener)`
+#### `on(event, priority=0, listener)`
 
 Adds an event listener. Returns `this`.
 
  * `event` String - One or more space-separated event names to add the listener to.
+ * `priority` Number (optional) - Defaults to `0`. The higher the priority, the
+   sooner the listener is called. Value may be negative.
  * `listener` Function - A function to call when the event is emitted.
 
 #### `once(event, listener)`
+#### `once(event, priority=0, listener)`
 
 Adds an event listener that will only be called once. Returns `this`.
 
  * `event` String - One or more space-separated event names to add the listener to.
+ * `priority` Number (optional) - Defaults to `0`. The higher the priority, the
+   sooner the listener is called. Value may be negative.
  * `listener` Function - A function to call when the event is emitted.
 
 #### `off(event, listener)`

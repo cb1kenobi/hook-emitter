@@ -1,5 +1,6 @@
 ._*
 .babelrc
+.codeclimate.yml
 .DS_Store
 .eslintrc
 .git*

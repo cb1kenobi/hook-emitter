@@ -23,14 +23,26 @@ export class HookEmitter {
 	/**
 	 * Adds an event listener.
 	 *
-	 * @param {String} event - One or more space-separated event names to add the listener to.
+	 * @param {String} event - One or more space-separated event names to add
+	 * the listener to.
+	 * @param {Number} [priority=0] - The priority of listener. The higher the
+	 * priority, the sooner it will be executed.
 	 * @param {Function} listener - A function to call when the event is emitted.
 	 * @returns {HookEmitter}
 	 * @access public
 	 */
-	on(event, listener) {
+	on(event, priority=0, listener) {
 		if (!event || typeof event !== 'string') {
 			throw new TypeError('Expected event name to be a valid string.');
+		}
+
+		if (typeof priority === 'function') {
+			listener = priority;
+			priority = 0;
+		}
+
+		if (typeof priority !== 'number') {
+			throw new TypeError('Expected priority to be a number.');
 		}
 
 		if (typeof listener !== 'function') {
@@ -46,7 +58,7 @@ export class HookEmitter {
 				if (!listeners) {
 					this._events.set(evt, listeners = []);
 				}
-				listeners.push(listener);
+				listeners.push({ listener, priority });
 			}
 		}
 
@@ -56,14 +68,24 @@ export class HookEmitter {
 	/**
 	 * Adds an event listener that will only be called once.
 	 *
-	 * @param {String} event - One or more space-separated event names to add the listener to.
+	 * @param {String} event - One or more space-separated event names to add
+	 * the listener to.
+	 * @param {Number} [priority=0] - The priority of listener. The higher the
+	 * priority, the sooner it will be executed.
 	 * @param {Function} listener - A function to call when the event is emitted.
 	 * @returns {HookEmitter}
 	 * @access public
 	 */
-	once(event, listener) {
+	once(event, priority=0, listener) {
 		if (!event || typeof event !== 'string') {
 			throw new TypeError('Expected event name to be a valid string.');
+		}
+
+		if (typeof priority === 'function') {
+			listener = priority;
+			priority = 0;
+		} else if (typeof priority !== 'number') {
+			throw new TypeError('Expected priority to be a number.');
 		}
 
 		if (typeof listener !== 'function') {
@@ -82,7 +104,7 @@ export class HookEmitter {
 					this.off(evt, wrapper);
 					listener.apply(this, arguments);
 				}.bind(this);
-				listeners.push(wrapper);
+				listeners.push({ listener: wrapper, priority });
 			}
 		}
 
@@ -125,7 +147,7 @@ export class HookEmitter {
 
 			const len = listeners.length;
 
-			if (len === 1 && listeners[0] === listener) {
+			if (len === 1 && listeners[0].listener === listener) {
 				// there was only one event and this was it, so
 				// nuke the entire event from the map
 				this._events.delete(evt);
@@ -133,7 +155,7 @@ export class HookEmitter {
 			}
 
 			for (let i = 0; i < len; i++) {
-				if (listeners[i] === listener) {
+				if (listeners[i].listener === listener) {
 					listeners.splice(i, 1);
 					break;
 				}
@@ -147,9 +169,12 @@ export class HookEmitter {
 	 * Converts an array of listeners into a promise chain
 	 *
 	 * @param {Object} type - The event type.
-	 * @param {Function} getListeners - A function that returns an array of listeners to compose.
-	 * @param {Function} [callback] - An optional function to call after all listeners have been fired.
-	 * @param {Function} [transform] - An function that transforms a result with the original payload.
+	 * @param {Function} getListeners - A function that returns an array of
+	 * listeners to compose.
+	 * @param {Function} [callback] - An optional function to call after all
+	 * listeners have been fired.
+	 * @param {Function} [transform] - An function that transforms a result with
+	 * the original payload.
 	 * @returns {Function}
 	 * @access private
 	 */
@@ -158,29 +183,41 @@ export class HookEmitter {
 			throw new TypeError('Expected callback to be a function.');
 		}
 
+		if (typeof transform !== 'function') {
+			// define the default transform for passing results to the next
+			// listener in the chain
+			transform = (result, payload) => ({
+				type: payload.type,
+				args: result || payload.args
+			});
+		}
+
 		// create the function that fetches the events since the list of
 		// listeners may change before the hook is called
 		const getListeners = () => {
 			const listeners = this._events.get(type) || [];
+			if (!Array.isArray(listeners)) {
+				throw new TypeError('Expected listeners to be an array.');
+			}
+
 			const linkedListeners = this._links.map(link => {
 				return link.emitter.events.get((link.prefix || '') + type) || [];
 			});
-			return listeners.concat.apply(listeners, linkedListeners);
+
+			return listeners
+				.concat.apply(listeners, linkedListeners)
+				.sort((a, b) => b.priority - a.priority)
+				.map(p => {
+					if (typeof p.listener !== 'function') {
+						throw new TypeError('Expected listener to be a function.');
+					}
+					return p.listener;
+				});
 		};
 
 		// return the wrapped function
 		return (...args) => {
 			const listeners = getListeners();
-
-			if (!Array.isArray(listeners)) {
-				throw new TypeError('Expected listeners to be an array.');
-			}
-
-			for (const listener of listeners) {
-				if (typeof listener !== 'function') {
-					throw new TypeError('Expected listener to be a function.');
-				}
-			}
 
 			if (callback) {
 				listeners.push(callback);
@@ -218,11 +255,7 @@ export class HookEmitter {
 							return Promise.reject(err);
 						}
 
-						if (typeof transform === 'function') {
-							result = transform(result, payload);
-						}
-
-						return dispatch(result || payload, i + 1)
+						return dispatch(transform(result, payload), i + 1)
 							.then(result => {
 								if (pending) {
 									resolve(result || payload);
@@ -241,12 +274,7 @@ export class HookEmitter {
 						}
 
 						return result
-							.then(result => {
-								if (typeof transform === 'function') {
-									result = transform(result, payload);
-								}
-								return dispatch(result || payload, i + 1);
-							})
+							.then(result => dispatch(transform(result, payload), i + 1))
 							.then(result => resolve(result || payload))
 							.catch(reject);
 					}
@@ -263,11 +291,7 @@ export class HookEmitter {
 						return;
 					}
 
-					if (typeof transform === 'function') {
-						result = transform(result, payload);
-					}
-
-					dispatch(result || payload, i + 1)
+					dispatch(transform(result, payload), i + 1)
 						.then(resolve, reject);
 				});
 			}
@@ -278,7 +302,8 @@ export class HookEmitter {
 	 * Emits one or more events.
 	 *
 	 * @param {String} event - The name of the event to emit.
-	 * @param {...*} [args] - One or more additional arguments to be emitted with the event.
+	 * @param {...*} [args] - One or more additional arguments to be emitted
+	 * with the event.
 	 * @returns {Promise}
 	 * @access public
 	 */
@@ -296,7 +321,8 @@ export class HookEmitter {
 	 * Creates a function hook.
 	 *
 	 * @param {String} event - The name of the hook's event.
-	 * @param {Object} [ctx] - The context to run the function in. Useful if `fn` is going to be overwritten.
+	 * @param {Object} [ctx] - The context to run the function in. Useful if
+	 * `fn` is going to be overwritten.
 	 * @param {Function} fn - The function being hooked up.
 	 * @returns {Function}
 	 * @access public
