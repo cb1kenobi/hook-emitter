@@ -3,7 +3,7 @@ import 'source-map-support/register';
 /**
  * Emits events and hooks to synchronous and asynchronous listeners.
  */
-export class HookEmitter {
+class HookEmitter {
 	/**
 	 * Constructs an HookEmitter object.
 	 */
@@ -248,13 +248,13 @@ export class HookEmitter {
 					let fired = null;
 					let pending = false;
 
+					// construct the args
 					const args = [...payload.args, function next(err, result) {
-						fired = { err, result };
+						// we set the fired promise to this result/error
+						fired = err ? Promise.reject(err) : Promise.resolve(result);
 
-						if (err) {
-							return Promise.reject(err);
-						}
-
+						// if somebody mixes paradigms and calls next().then(),
+						// at least their function will wait for the next listener
 						return dispatch(transform(result, payload), i + 1)
 							.then(result => {
 								if (pending) {
@@ -266,11 +266,14 @@ export class HookEmitter {
 							.catch(reject);
 					}];
 
+					// call the listener
 					let result = listener.apply(null, args);
 
+					// if we got back a promise, we have to wait
 					if (result instanceof Promise) {
 						if (fired) {
-							return result.then(resolve, reject);
+							return result
+								.then(resolve, reject);
 						}
 
 						return result
@@ -279,8 +282,12 @@ export class HookEmitter {
 							.catch(reject);
 					}
 
+					// result wasn't a promise, but maybe our old school next()
+					// callback was called
 					if (fired) {
-						return fired.err ? reject(fired.err) : resolve(fired.result || payload);
+						return fired
+							.then(result => resolve(result || payload))
+							.catch(reject);
 					}
 
 					// if the listener has more args than the number of args in
@@ -416,3 +423,6 @@ export class HookEmitter {
 		return this;
 	}
 }
+
+export { HookEmitter };
+export default HookEmitter;
