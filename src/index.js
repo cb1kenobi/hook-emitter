@@ -1,4 +1,7 @@
 import 'source-map-support/register';
+import debug from 'debug';
+
+const log = debug('hook-emitter');
 
 /**
  * Emits events and hooks to synchronous and asynchronous listeners.
@@ -168,13 +171,12 @@ class HookEmitter {
 	/**
 	 * Converts an array of listeners into a promise chain
 	 *
-	 * @param {Object} type - The event type.
-	 * @param {Function} getListeners - A function that returns an array of
-	 * listeners to compose.
-	 * @param {Function} [callback] - An optional function to call after all
-	 * listeners have been fired.
-	 * @param {Function} [transform] - An function that transforms a result with
-	 * the original payload.
+	 * @param {Object} [opts] - Various options.
+	 * @param {Function} [opts.callback] - An optional function to call after
+	 * all listeners have been fired.
+	 * @param {Function} [opts.transform] - An function that transforms a result
+	 * with the original payload.
+	 * @param {String} [opts.type] - The event type.
 	 * @returns {Function}
 	 * @access private
 	 */
@@ -216,14 +218,15 @@ class HookEmitter {
 		};
 
 		// return the wrapped function
-		return (...args) => {
+		return function (...args) {
 			const listeners = getListeners();
+			const ctx = this;
 
 			if (callback) {
 				listeners.push(callback);
 			}
 
-			let index = -1;
+			log(`running chain with ${listeners.length} listeners`);
 
 			// start the chain and return its promise
 			return dispatch({
@@ -232,73 +235,54 @@ class HookEmitter {
 			}, 0);
 
 			function dispatch(payload, i) {
-				if (i <= index) {
-					// next() was called multiple times, but there's nothing we can do about
-					// it except break the chain... no error will ever be propagated
-					return Promise.reject(new Error('next() was called multiple times'));
-				}
-				index = i;
-
 				let listener = listeners[i];
 				if (!listener) {
+					log('end of the line');
 					return Promise.resolve(payload);
 				}
 
 				return new Promise((resolve, reject) => {
-					let fired = null;
-					let pending = false;
+					let fired = false;
 
 					// construct the args
-					const args = [...payload.args, function next(err, result) {
-						// we set the fired promise to this result/error
-						fired = err ? Promise.reject(err) : Promise.resolve(result);
+					const args = [...payload.args, function next(result) {
+						if (fired) {
+							log('next() already fired');
+							return;
+						}
+
+						fired = true;
 
 						// if somebody mixes paradigms and calls next().then(),
 						// at least their function will wait for the next listener
-						return dispatch(transform(result, payload), i + 1)
-							.then(result => {
-								if (pending) {
-									resolve(result || payload);
-								} else {
-									return result;
-								}
-							})
+						return dispatch(result || payload, i + 1)
+							.then(result => result || payload)
 							.catch(reject);
 					}];
 
+					log(`calling listener ${i}`, args);
+
 					// call the listener
-					let result = listener.apply(null, args);
+					let result = listener.apply(ctx, args);
+
+					log('listener returned:', result);
+
+					if (result === undefined && fired) {
+						result = Promise.resolve();
+					}
 
 					// if we got back a promise, we have to wait
 					if (result instanceof Promise) {
-						if (fired) {
-							return result
-								.then(resolve, reject);
-						}
-
 						return result
-							.then(result => dispatch(transform(result, payload), i + 1))
-							.then(result => resolve(result || payload))
+							.then(result => {
+								result = transform(result, payload);
+								return fired ? result : dispatch(result, i + 1);
+							})
+							.then(resolve)
 							.catch(reject);
 					}
 
-					// result wasn't a promise, but maybe our old school next()
-					// callback was called
-					if (fired) {
-						return fired
-							.then(result => resolve(result || payload))
-							.catch(reject);
-					}
-
-					// if the listener has more args than the number of args in
-					// the payload, then assume that it expects a callback and
-					// we must wait
-					if (result === undefined && listener.length > payload.args.length) {
-						pending = true;
-						return;
-					}
-
-					dispatch(transform(result, payload), i + 1)
+					return dispatch(transform(result, payload), i + 1)
 						.then(resolve, reject);
 				});
 			}
@@ -356,28 +340,25 @@ class HookEmitter {
 		return (...args) => {
 			const data = {
 				type: event,
-				fn: fn,
-				args: args,
-				ctx: ctx,
-				result: undefined
+				fn,
+				args,
+				ctx
 			};
+
+			log('creating chain', data);
 
 			const chain = this.compose({
 				type: event,
-				callback: async (evt) => {
-					const it = evt || data;
-					it.result = await it.fn.apply(it.ctx, it.args);
-					return it;
+				callback: async function (...args) {
+					log('firing callback', this);
+					this.result = await this.fn.apply(this.ctx, this.args);
+					log('callback result =', this.result);
+					return this;
 				},
-				transform: (result, data) => {
-					if (result !== undefined) {
-						data.args[0] = result;
-					}
-					return data;
-				}
+				transform: (result, data) => result || data
 			});
 
-			return chain(data).then(data => data.args[0].result);
+			return chain.apply(data, data.args).then(data => data.result);
 		};
 	}
 

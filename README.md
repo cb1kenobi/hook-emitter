@@ -8,8 +8,7 @@
 [![Deps][david-image]][david-url]
 [![Dev Deps][david-dev-image]][david-dev-url]
 
-Event emitter with support for asynchronous handlers and a sweet "hook"
-mechanism.
+Promised-based chained event emitter with ability to wrap functions.
 
 > Note: hook-emitter requires Node.js 4 or newer.
 
@@ -22,9 +21,7 @@ mechanism.
 Async listener example:
 
 ```javascript
-import { HookEmitter } from 'hook-emitter';
-// the CommonJS way:
-// const HookEmitter = require('hook-emitter').HookEmitter;
+import HookEmitter from 'hook-emitter';
 
 const emitter = new HookEmitter();
 
@@ -37,6 +34,7 @@ emitter.on('sum', (x, y) => {
     });
 });
 
+// emit and wait for all listeners to be called
 emitter.emit('sum', 3, 7);
 ```
 
@@ -54,15 +52,22 @@ const hookedSum = emitter.hook('sum', (x, y) => {
     });
 });
 
-emitter.on('sum', evt => {
+emitter.on('sum', function (x, y) {
     console.log('doubling x and y');
-    evt.args[0] *= 2;
-    evt.args[1] *= 2;
+    this.args[0] *= 2;
+    this.args[1] *= 2;
+});
+
+emitter.on('sum', async (x, y, next) => {
+	console.log('doubling result after sum function has been called');
+	const r = await next();
+	r.result *= 2;
+	return r;
 });
 
 hookedSum(3, 7)
     .then(result => {
-        console.log('The sum of 6 + 14 = ' + result);
+        console.log('The sum of (6 + 14) * 2 = ' + result);
     })
     .catch(err => console.error);
 ```
@@ -143,6 +148,35 @@ Creates a function hook. Returns a `Function` which when called returns a `Promi
  * `ctx` Object (optional) - The context to run the function in. Useful if `fn` is
    going to be overwritten.
  * `fn` Function - The function being hooked up.
+
+Hook listeners are passed the same input arguments plus a `next()` callback.
+For example, if the hooked function accepts two arguments `x` and `y`, then the
+listeners will be called with `x`, `y`, and `next`. A listener only needs to
+call `next()` if it wishes be invoked after the hooked function has been called.
+
+Listener functions are called in the context of the hook event meaning they can
+access:
+
+ * `this.type` String - The name of the event.
+ * `this.args` Array - The same arguments that the listener is invoked with. This
+   is useful if you want to modify the arguments being passed to the hooked
+   function.
+ * `this.fn` Function - The hooked function. You can use this to completely
+   replace the hooked function.
+ * `this.result` * - The result from the hooked function. If the hooked function
+   is async, then this will be `undefined` and the actual result will be returned
+   by the promise chain.
+
+```javascript
+emitter.on('foo', function (x, y, next) {
+	console.log('event type:', this.type);
+	console.log('args:', this.args);
+	console.log('fn:', this.fn);
+
+	// you can modify the args like this:
+	this.args = [y, x];
+});
+```
 
 #### `link(emitter, prefix)`
 

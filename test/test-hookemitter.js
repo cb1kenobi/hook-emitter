@@ -828,12 +828,15 @@ describe('hook', () => {
 			count++;
 		}
 
-		emitter.on('foo', evt => {
-			expect(evt).to.be.an.object;
-			expect(evt.type).to.equal('foo');
-			expect(evt.fn).to.equal(foo);
-			expect(evt.args).to.eql([123, 'abc']);
-			evt.args[1] = evt.args[1].split('').reverse().join('');
+		emitter.on('foo', function (num, abc) {
+			expect(num).to.equal(123);
+			expect(abc).to.equal('abc');
+
+			expect(this.type).to.equal('foo');
+			expect(this.fn).to.equal(foo);
+			expect(this.args).to.eql([123, 'abc']);
+
+			this.args = [num, abc.split('').reverse().join('')];
 		});
 
 		let hookFn = emitter.hook('foo', foo);
@@ -856,20 +859,18 @@ describe('hook', () => {
 			count++;
 		}
 
-		emitter.on('foo', evt => {
-			expect(evt).to.be.an.object;
-			expect(evt.type).to.equal('foo');
-			expect(evt.fn).to.equal(foo);
-			expect(evt.args).to.eql([123, 'abc']);
-			evt.args[1] = evt.args[1].split('').reverse().join('');
+		emitter.on('foo', function (num, abc) {
+			expect(this.type).to.equal('foo');
+			expect(this.fn).to.equal(foo);
+			expect(this.args).to.eql([123, 'abc']);
+			this.args[1] = this.args[1].split('').reverse().join('');
 		});
 
-		emitter.on('foo', evt => {
-			expect(evt).to.be.an.object;
-			expect(evt.type).to.equal('foo');
-			expect(evt.fn).to.equal(foo);
-			expect(evt.args).to.eql([123, 'cba']);
-			evt.args[0] = evt.args[0] * 2;
+		emitter.on('foo', function (num, abc) {
+			expect(this.type).to.equal('foo');
+			expect(this.fn).to.equal(foo);
+			expect(this.args).to.eql([123, 'cba']);
+			this.args[0] = this.args[0] * 2;
 		});
 
 		let hookFn = emitter.hook('foo', foo);
@@ -898,33 +899,35 @@ describe('hook', () => {
 
 		let hookFn = emitter.hook('foo', foo);
 
-		emitter.on('foo', evt => {
-			expect(evt.args[0]).to.equal('a');
-			expect(evt.args[1]).to.equal(1);
-			let obj = Object.assign({}, evt);
+		emitter.on('foo', function (abc, num) {
+			expect(abc).to.equal('a');
+			expect(num).to.equal(1);
+			let obj = Object.assign({}, this);
 			obj.args[0] += 'b';
 			obj.args[1]++;
 			obj.bob = true;
 			return obj;
 		});
 
-		emitter.on('foo', (evt, next) => {
-			expect(evt.args[0]).to.equal('ab');
-			expect(evt.args[1]).to.equal(2);
-			setTimeout(() => {
-				const obj = Object.assign({}, evt);
-				obj.args[0] += 'c';
-				obj.args[1]++;
-				obj.sally = true;
-				next(null, obj);
-			}, 250);
+		emitter.on('foo', function (abc, num, next) {
+			expect(abc).to.equal('ab');
+			expect(num).to.equal(2);
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					const obj = Object.assign({}, this);
+					obj.args[0] += 'c';
+					obj.args[1]++;
+					obj.sally = true;
+					next(obj).then(resolve, reject);
+				}, 250);
+			});
 		});
 
-		emitter.on('foo', evt => {
-			expect(evt.args[0]).to.equal('abc');
-			expect(evt.args[1]).to.equal(3);
+		emitter.on('foo', function (abc, num) {
+			expect(abc).to.equal('abc');
+			expect(num).to.equal(3);
 			return new Promise((resolve, reject) => {
-				const obj = Object.assign({}, evt);
+				const obj = Object.assign({}, this);
 				obj.args[0] += 'd';
 				obj.args[1]++;
 				obj.suzie = true;
@@ -934,12 +937,12 @@ describe('hook', () => {
 			});
 		});
 
-		function bar(evt) {
-			expect(evt.args[0]).to.equal('abcd');
-			expect(evt.args[1]).to.equal(4);
+		function bar(abc, num) {
+			expect(abc).to.equal('abcd');
+			expect(num).to.equal(4);
 			return new Promise((resolve, reject) => {
 				setTimeout(() => {
-					let obj = Object.assign({}, evt);
+					let obj = Object.assign({}, this);
 					obj.args[0] += 'e';
 					obj.args[1]++;
 					obj.billy = true;
@@ -948,20 +951,20 @@ describe('hook', () => {
 			});
 		}
 
-		emitter.on('foo', async (evt) => {
-			return await bar(evt);
+		emitter.on('foo', async function (abc, num) {
+			return await bar.call(this, abc, num);
 		});
 
-		emitter.on('foo', async (evt, next) => {
-			expect(evt.args[0]).to.equal('abcde');
-			expect(evt.args[1]).to.equal(5);
-			const obj = Object.assign({}, evt);
+		emitter.on('foo', async function (abc, num, next) {
+			expect(abc).to.equal('abcde');
+			expect(num).to.equal(5);
+			const obj = Object.assign({}, this);
 			obj.args[0] += 'f';
 			obj.args[1]++;
 			obj.joey = true;
-			const evt2 = await next(null, obj);
-			expect(evt2.args[0].result).to.equal(12);
-			return evt2;
+			const it = await next();
+			expect(it.result).to.equal(12);
+			return it;
 		});
 
 		hookFn('a', 1)
@@ -983,13 +986,12 @@ describe('hook', () => {
 			count++;
 		}
 
-		emitter.on('foo', (evt, next) => {
-			expect(evt).to.be.an.object;
-			expect(evt.type).to.equal('foo');
-			expect(evt.fn).to.equal(foo);
-			expect(evt.args).to.eql([123, 'abc']);
-			evt.args[1] = evt.args[1].split('').reverse().join('');
-			next(new Error('bar'));
+		emitter.on('foo', function (num, abc, next) {
+			expect(this.type).to.equal('foo');
+			expect(this.fn).to.equal(foo);
+			expect(this.args).to.eql([123, 'abc']);
+			this.args[1] = this.args[1].split('').reverse().join('');
+			throw new Error('bar');
 		});
 
 		let hookFn = emitter.hook('foo', foo);
