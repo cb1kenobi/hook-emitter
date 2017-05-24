@@ -1,5 +1,8 @@
-import 'source-map-support/register';
 import debug from 'debug';
+
+if (!Error.prepareStackTrace) {
+	require('source-map-support/register');
+}
 
 const log = debug('hook-emitter');
 
