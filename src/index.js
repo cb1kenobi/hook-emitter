@@ -1,10 +1,11 @@
-import debug from 'debug';
+import snooplogg from 'snooplogg';
 
+/* istanbul ignore if */
 if (!Error.prepareStackTrace) {
 	require('source-map-support/register');
 }
 
-const log = debug('hook-emitter');
+const { log } = snooplogg('hook-emitter');
 
 /**
  * Emits events and hooks to synchronous and asynchronous listeners.
@@ -12,6 +13,8 @@ const log = debug('hook-emitter');
 class HookEmitter {
 	/**
 	 * Constructs an HookEmitter object.
+	 *
+	 * @access public
 	 */
 	constructor() {
 		this._events = new Map();
@@ -37,7 +40,7 @@ class HookEmitter {
 	 * @returns {HookEmitter}
 	 * @access public
 	 */
-	on(event, priority=0, listener) {
+	on(event, priority = 0, listener) {
 		if (!event || typeof event !== 'string') {
 			throw new TypeError('Expected event name to be a valid string.');
 		}
@@ -82,7 +85,7 @@ class HookEmitter {
 	 * @returns {HookEmitter}
 	 * @access public
 	 */
-	once(event, priority=0, listener) {
+	once(event, priority = 0, listener) {
 		if (!event || typeof event !== 'string') {
 			throw new TypeError('Expected event name to be a valid string.');
 		}
@@ -248,7 +251,7 @@ class HookEmitter {
 					let fired = false;
 
 					// construct the args
-					const args = [...payload.args, function next(result) {
+					const args = [ ...(Array.isArray(payload.args) ? payload.args : [ payload.args ]), function next(result) {
 						if (fired) {
 							log('next() already fired');
 							return;
@@ -261,7 +264,7 @@ class HookEmitter {
 						return dispatch(result || payload, i + 1)
 							.then(result => result || payload)
 							.catch(reject);
-					}];
+					} ];
 
 					log(`calling listener ${i}`, args);
 

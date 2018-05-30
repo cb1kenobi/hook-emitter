@@ -1,11 +1,10 @@
-import HookEmitter from '../src/index';
-import { expect } from 'chai';
+import HookEmitter from '../dist/index';
 
 describe('on', () => {
 	it('should not have any listeners', () => {
 		let emitter = new HookEmitter();
 
-		expect(emitter.events).be.an.instanceof.Map;
+		expect(emitter.events).be.an.instanceof(Map);
 		expect(emitter.events.size).to.equal(0);
 		expect(emitter.events.has('foo')).to.be.false;
 	});
@@ -22,9 +21,9 @@ describe('on', () => {
 		expect(emitter.events.has('foo')).to.be.true;
 
 		let listeners = emitter.events.get('foo');
-		expect(listeners).to.be.an.array;
+		expect(listeners).to.be.an('array');
 		expect(listeners.length).to.equal(1);
-		expect(listeners.map(p => p.listener)).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([ foo ]);
 	});
 
 	it('should add multiple event listeners', () => {
@@ -48,14 +47,14 @@ describe('on', () => {
 		expect(emitter.events.has('bar')).to.be.true;
 
 		let listeners = emitter.events.get('foo');
-		expect(listeners).to.be.an.array;
+		expect(listeners).to.be.an('array');
 		expect(listeners.length).to.equal(4);
-		expect(listeners.map(p => p.listener)).to.eql([foo, foo, foo, foo]);
+		expect(listeners.map(p => p.listener)).to.eql([ foo, foo, foo, foo ]);
 
 		listeners = emitter.events.get('bar');
-		expect(listeners).to.be.an.array;
+		expect(listeners).to.be.an('array');
 		expect(listeners.length).to.equal(4);
-		expect(listeners.map(p => p.listener)).to.eql([bar, bar, bar, bar]);
+		expect(listeners.map(p => p.listener)).to.eql([ bar, bar, bar, bar ]);
 	});
 
 	it('should add multiple events with single listener', () => {
@@ -71,19 +70,19 @@ describe('on', () => {
 		expect(emitter.events.has('baz')).to.be.true;
 
 		let listeners = emitter.events.get('foo');
-		expect(listeners).to.be.an.array;
+		expect(listeners).to.be.an('array');
 		expect(listeners.length).to.equal(1);
-		expect(listeners.map(p => p.listener)).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([ foo ]);
 
 		listeners = emitter.events.get('bar');
-		expect(listeners).to.be.an.array;
+		expect(listeners).to.be.an('array');
 		expect(listeners.length).to.equal(1);
-		expect(listeners.map(p => p.listener)).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([ foo ]);
 
 		listeners = emitter.events.get('baz');
-		expect(listeners).to.be.an.array;
+		expect(listeners).to.be.an('array');
 		expect(listeners.length).to.equal(1);
-		expect(listeners.map(p => p.listener)).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([ foo ]);
 	});
 
 	it('should throw exception if event is invalid', () => {
@@ -140,9 +139,9 @@ describe('off', () => {
 		expect(emitter.events.has('foo')).to.be.true;
 
 		let listeners = emitter.events.get('foo');
-		expect(listeners).to.be.an.array;
+		expect(listeners).to.be.an('array');
 		expect(listeners.length).to.equal(1);
-		expect(listeners.map(p => p.listener)).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([ foo ]);
 
 		emitter.off('foo', foo);
 
@@ -162,9 +161,9 @@ describe('off', () => {
 		expect(emitter.events.has('foo')).to.be.true;
 
 		let listeners = emitter.events.get('foo');
-		expect(listeners).to.be.an.array;
+		expect(listeners).to.be.an('array');
 		expect(listeners.length).to.equal(2);
-		expect(listeners.map(p => p.listener)).to.eql([foo, foo]);
+		expect(listeners.map(p => p.listener)).to.eql([ foo, foo ]);
 
 		emitter.off('foo', foo);
 
@@ -172,7 +171,7 @@ describe('off', () => {
 		expect(emitter.events.has('foo')).to.be.true;
 		listeners = emitter.events.get('foo');
 		expect(listeners.length).to.equal(1);
-		expect(listeners.map(p => p.listener)).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([ foo ]);
 
 		emitter.off('foo', foo);
 
@@ -193,19 +192,19 @@ describe('off', () => {
 		expect(emitter.events.has('baz')).to.be.true;
 
 		let listeners = emitter.events.get('foo');
-		expect(listeners).to.be.an.array;
+		expect(listeners).to.be.an('array');
 		expect(listeners.length).to.equal(1);
-		expect(listeners.map(p => p.listener)).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([ foo ]);
 
 		listeners = emitter.events.get('bar');
-		expect(listeners).to.be.an.array;
+		expect(listeners).to.be.an('array');
 		expect(listeners.length).to.equal(1);
-		expect(listeners.map(p => p.listener)).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([ foo ]);
 
 		listeners = emitter.events.get('baz');
-		expect(listeners).to.be.an.array;
+		expect(listeners).to.be.an('array');
 		expect(listeners.length).to.equal(1);
-		expect(listeners.map(p => p.listener)).to.eql([foo]);
+		expect(listeners.map(p => p.listener)).to.eql([ foo ]);
 
 		emitter.off('foo bar', foo);
 
@@ -314,20 +313,16 @@ describe('compose', () => {
 	it('should throw exception if listeners not an array of functions', () => {
 		expect(() => {
 			let emitter = new HookEmitter();
-			emitter.events.set('foo', ['bar']);
+			emitter.events.set('foo', [ 'bar' ]);
 			emitter.compose({ type: 'foo' })();
 		}).to.throw('Expected listener to be a function.');
 	});
 });
 
 describe('emit', () => {
-	it('should emit without any listeners', (done) => {
+	it('should emit without any listeners', async () => {
 		let emitter = new HookEmitter();
-		emitter.emit('foo')
-			.then(() => {
-				done();
-			})
-			.catch(done);
+		return emitter.emit('foo');
 	});
 
 	it('should emit with a single sync listener without promise', () => {
@@ -343,7 +338,7 @@ describe('emit', () => {
 		expect(count).to.equal(1);
 	});
 
-	it('should emit with a single sync listener', done => {
+	it('should emit with a single sync listener', async () => {
 		let emitter = new HookEmitter();
 		let count = 0;
 
@@ -353,15 +348,12 @@ describe('emit', () => {
 
 		emitter.on('foo', foo);
 
-		emitter.emit('foo')
-			.then(() => {
-				expect(count).to.equal(1);
-				done();
-			})
-			.catch(done);
+		await emitter.emit('foo');
+
+		expect(count).to.equal(1);
 	});
 
-	it('should emit with a single sync listener with values', done => {
+	it('should emit with a single sync listener with values', async () => {
 		let emitter = new HookEmitter();
 		let count = 0;
 
@@ -373,15 +365,12 @@ describe('emit', () => {
 
 		emitter.on('foo', foo);
 
-		emitter.emit('foo', 123, 'abc')
-			.then(() => {
-				expect(count).to.equal(1);
-				done();
-			})
-			.catch(done);
+		await emitter.emit('foo', 123, 'abc');
+
+		expect(count).to.equal(1);
 	});
 
-	it('should emit with a single async listener', function (done) {
+	it('should emit with a single async listener', async function () {
 		this.slow(5000);
 		this.timeout(5000);
 
@@ -399,15 +388,12 @@ describe('emit', () => {
 
 		emitter.on('foo', foo);
 
-		emitter.emit('foo')
-			.then(() => {
-				expect(count).to.equal(1);
-				done();
-			})
-			.catch(done);
+		await emitter.emit('foo');
+
+		expect(count).to.equal(1);
 	});
 
-	it('should emit with a single async listener with values', function (done) {
+	it('should emit with a single async listener with values', async function () {
 		this.slow(5000);
 		this.timeout(5000);
 
@@ -427,12 +413,9 @@ describe('emit', () => {
 
 		emitter.on('foo', foo);
 
-		emitter.emit('foo', 123, 'abc')
-			.then(() => {
-				expect(count).to.equal(1);
-				done();
-			})
-			.catch(done);
+		await emitter.emit('foo', 123, 'abc');
+
+		expect(count).to.equal(1);
 	});
 
 	it('should emit with a multiple sync listeners without promise', () => {
@@ -449,7 +432,7 @@ describe('emit', () => {
 		expect(count).to.equal(2);
 	});
 
-	it('should emit with a multiple async listeners', function (done) {
+	it('should emit with a multiple async listeners', async function () {
 		this.slow(5000);
 		this.timeout(5000);
 
@@ -468,15 +451,12 @@ describe('emit', () => {
 		emitter.on('foo', foo);
 		emitter.on('foo', foo);
 
-		emitter.emit('foo')
-			.then(() => {
-				expect(count).to.equal(2);
-				done();
-			})
-			.catch(done);
+		await emitter.emit('foo');
+
+		expect(count).to.equal(2);
 	});
 
-	it('should emit with a multiple async listeners with values', function (done) {
+	it('should emit with a multiple async listeners with values', async function () {
 		this.slow(5000);
 		this.timeout(5000);
 
@@ -497,15 +477,12 @@ describe('emit', () => {
 		emitter.on('foo', foo);
 		emitter.on('foo', foo);
 
-		emitter.emit('foo', 123, 'abc')
-			.then(() => {
-				expect(count).to.equal(2);
-				done();
-			})
-			.catch(done);
+		await emitter.emit('foo', 123, 'abc');
+
+		expect(count).to.equal(2);
 	});
 
-	it('should emit with a multiple sync and async listeners', function (done) {
+	it('should emit with a multiple sync and async listeners', async function () {
 		this.slow(5000);
 		this.timeout(5000);
 
@@ -528,15 +505,9 @@ describe('emit', () => {
 		emitter.on('foo', foo);
 		emitter.on('foo', bar);
 
-		emitter.emit('foo')
-			.then(() => {
-				expect(count).to.equal(2);
-				done();
-			})
-			.catch(done);
+		await emitter.emit('foo');
 
-		// since foo() was sync, it should have already run
-		expect(count).to.equal(1);
+		expect(count).to.equal(2);
 	});
 
 	it('should not emit event added from listener', function () {
@@ -560,7 +531,7 @@ describe('emit', () => {
 		expect(count).to.equal(3);
 	});
 
-	it('should emit with regular function and async function', done => {
+	it('should emit with regular function and async function', async () => {
 		let emitter = new HookEmitter();
 		let count = 0;
 
@@ -578,15 +549,12 @@ describe('emit', () => {
 			count++;
 		});
 
-		emitter.emit('foo', 'abc', 123)
-			.then(() => {
-				expect(count).to.equal(2);
-				done();
-			})
-			.catch(done);
+		await emitter.emit('foo', 'abc', 123);
+
+		expect(count).to.equal(2);
 	});
 
-	it('should emit with multiple async functions', done => {
+	it('should emit with multiple async functions', async () => {
 		let emitter = new HookEmitter();
 		let count = 0;
 
@@ -604,15 +572,12 @@ describe('emit', () => {
 			count++;
 		});
 
-		emitter.emit('foo', 'abc', 123)
-			.then(() => {
-				expect(count).to.equal(2);
-				done();
-			})
-			.catch(done);
+		await emitter.emit('foo', 'abc', 123);
+
+		expect(count).to.equal(2);
 	});
 
-	it('should emit with multiple async functions with next', done => {
+	it('should emit with multiple async functions with next', async () => {
 		let emitter = new HookEmitter();
 		let count = 0;
 
@@ -633,12 +598,9 @@ describe('emit', () => {
 			count++;
 		});
 
-		emitter.emit('foo', 'abc', 123)
-			.then(() => {
-				expect(count).to.equal(3);
-				done();
-			})
-			.catch(done);
+		await emitter.emit('foo', 'abc', 123);
+
+		expect(count).to.equal(3);
 	});
 
 	it('should throw exception if event is invalid', () => {
@@ -658,7 +620,7 @@ describe('emit', () => {
 		}).to.throw('Expected event name to be a valid string.');
 	});
 
-	it('should be ok if next is called multiple times', done => {
+	it('should be ok if next is called multiple times', async () => {
 		let emitter = new HookEmitter();
 
 		emitter.on('foo', next => {
@@ -666,16 +628,13 @@ describe('emit', () => {
 			next();
 		});
 
-		emitter
-			.emit('foo')
-			.then(() => done())
-			.catch(done);
+		await emitter.emit('foo');
 	});
 
-	it('should call listeners in correct order', done => {
+	it('should call listeners in correct order', async () => {
 		const emitter = new HookEmitter();
 		const actual = [];
-		const expected = ['e', 'a', 'b', 'd', 'c', 'f'];
+		const expected = [ 'e', 'a', 'b', 'd', 'c', 'f' ];
 
 		emitter.on('foo',  100, () => actual.push('a'));
 		emitter.on('foo',   50, () => actual.push('b'));
@@ -684,13 +643,9 @@ describe('emit', () => {
 		emitter.on('foo',  150, () => actual.push('e'));
 		emitter.on('foo', -200, () => actual.push('f'));
 
-		emitter
-			.emit('foo')
-			.then(() => {
-				expect(actual).to.deep.equal(expected);
-				done();
-			})
-			.catch(done);
+		await emitter.emit('foo');
+
+		expect(actual).to.deep.equal(expected);
 	});
 });
 
@@ -775,10 +730,10 @@ describe('hook', () => {
 		let emitter = new HookEmitter();
 		function foo() {}
 		let hookFn = emitter.hook('foo', foo);
-		expect(hookFn).to.be.a.function;
+		expect(hookFn).to.be.a('function');
 	});
 
-	it('should run hooked function', done => {
+	it('should run hooked function', async () => {
 		let emitter = new HookEmitter();
 		let count = 0;
 
@@ -787,17 +742,14 @@ describe('hook', () => {
 		}
 
 		let hookFn = emitter.hook('foo', foo);
-		expect(hookFn).to.be.a.function;
+		expect(hookFn).to.be.a('function');
 
-		hookFn()
-			.then(() => {
-				expect(count).to.equal(1);
-				done();
-			})
-			.catch(done);
+		await hookFn();
+
+		expect(count).to.equal(1);
 	});
 
-	it('should run hooked function with values', done => {
+	it('should run hooked function with values', async () => {
 		let emitter = new HookEmitter();
 		let count = 0;
 
@@ -808,17 +760,14 @@ describe('hook', () => {
 		}
 
 		let hookFn = emitter.hook('foo', foo);
-		expect(hookFn).to.be.a.function;
+		expect(hookFn).to.be.a('function');
 
-		hookFn(123, 'abc')
-			.then(() => {
-				expect(count).to.equal(1);
-				done();
-			})
-			.catch(done);
+		await hookFn(123, 'abc');
+
+		expect(count).to.equal(1);
 	});
 
-	it('should run hooked function with values and a single event', done => {
+	it('should run hooked function with values and a single event', async () => {
 		let emitter = new HookEmitter();
 		let count = 0;
 
@@ -834,22 +783,19 @@ describe('hook', () => {
 
 			expect(this.type).to.equal('foo');
 			expect(this.fn).to.equal(foo);
-			expect(this.args).to.eql([123, 'abc']);
+			expect(this.args).to.eql([ 123, 'abc' ]);
 
-			this.args = [num, abc.split('').reverse().join('')];
+			this.args = [ num, abc.split('').reverse().join('') ];
 		});
 
 		let hookFn = emitter.hook('foo', foo);
 
-		hookFn(123, 'abc')
-			.then(() => {
-				expect(count).to.equal(1);
-				done();
-			})
-			.catch(done);
+		await hookFn(123, 'abc');
+
+		expect(count).to.equal(1);
 	});
 
-	it('should run hooked function with values and multiple events', done => {
+	it('should run hooked function with values and multiple events', async () => {
 		let emitter = new HookEmitter();
 		let count = 0;
 
@@ -862,28 +808,25 @@ describe('hook', () => {
 		emitter.on('foo', function (num, abc) {
 			expect(this.type).to.equal('foo');
 			expect(this.fn).to.equal(foo);
-			expect(this.args).to.eql([123, 'abc']);
+			expect(this.args).to.eql([ 123, 'abc' ]);
 			this.args[1] = this.args[1].split('').reverse().join('');
 		});
 
 		emitter.on('foo', function (num, abc) {
 			expect(this.type).to.equal('foo');
 			expect(this.fn).to.equal(foo);
-			expect(this.args).to.eql([123, 'cba']);
+			expect(this.args).to.eql([ 123, 'cba' ]);
 			this.args[0] = this.args[0] * 2;
 		});
 
 		let hookFn = emitter.hook('foo', foo);
 
-		hookFn(123, 'abc')
-			.then(() => {
-				expect(count).to.equal(1);
-				done();
-			})
-			.catch(done);
+		await hookFn(123, 'abc');
+
+		expect(count).to.equal(1);
 	});
 
-	it('should run hooked function with multiple hooks', function (done) {
+	it('should run hooked function with multiple hooks', async function () {
 		this.timeout(2000000);
 		this.slow(2000000);
 
@@ -931,9 +874,7 @@ describe('hook', () => {
 				obj.args[0] += 'd';
 				obj.args[1]++;
 				obj.suzie = true;
-				setTimeout(() => {
-					resolve(obj);
-				}, 250);
+				setTimeout(() => resolve(obj), 250);
 			});
 		});
 
@@ -967,16 +908,13 @@ describe('hook', () => {
 			return it;
 		});
 
-		hookFn('a', 1)
-			.then(result => {
-				expect(count).to.equal(1);
-				expect(result).to.equal(12);
-				done();
-			})
-			.catch(done);
+		const result = await hookFn('a', 1);
+
+		expect(count).to.equal(1);
+		expect(result).to.equal(12);
 	});
 
-	it('should propagate errors when running hooked function with async event', done => {
+	it('should propagate errors when running hooked function with async event', async () => {
 		let emitter = new HookEmitter();
 		let count = 0;
 
@@ -989,26 +927,22 @@ describe('hook', () => {
 		emitter.on('foo', function (num, abc, next) {
 			expect(this.type).to.equal('foo');
 			expect(this.fn).to.equal(foo);
-			expect(this.args).to.eql([123, 'abc']);
+			expect(this.args).to.eql([ 123, 'abc' ]);
 			this.args[1] = this.args[1].split('').reverse().join('');
 			throw new Error('bar');
 		});
 
 		let hookFn = emitter.hook('foo', foo);
 
-		hookFn(123, 'abc')
-			.then(() => {
-				done(new Error('Expected error async hook to propagate'));
-			})
-			.catch(err => {
-				try {
-					expect(count).to.equal(0);
-					expect(err.message).to.equal('bar');
-					done();
-				} catch (e) {
-					done(e);
-				}
-			});
+		try {
+			await hookFn(123, 'abc');
+		} catch (err) {
+			expect(count).to.equal(0);
+			expect(err.message).to.equal('bar');
+			return;
+		}
+
+		throw new Error('Expected error async hook to propagate');
 	});
 
 	it('should throw exception if event is invalid', () => {
@@ -1057,7 +991,7 @@ describe('hook', () => {
 });
 
 describe('link', () => {
-	it('should link emitted events (no-prefix) and unlink', done => {
+	it('should link emitted events (no-prefix) and unlink', async () => {
 		const primary = new HookEmitter();
 		const secondary = new HookEmitter();
 		let primaryCount = 0;
@@ -1071,39 +1005,30 @@ describe('link', () => {
 			secondaryCount++;
 		});
 
-		Promise.resolve()
-			.then(() => primary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(secondaryCount).to.equal(0);
-			})
-			.then(() => secondary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(secondaryCount).to.equal(1);
-			})
-			.then(() => primary.link(secondary))
-			.then(() => secondary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(secondaryCount).to.equal(2);
-			})
-			.then(() => primary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(2);
-				expect(secondaryCount).to.equal(3);
-			})
-			.then(() => primary.unlink(secondary))
-			.then(() => primary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(3);
-				expect(secondaryCount).to.equal(3);
-			})
-			.then(() => done())
-			.catch(done);
+		await primary.emit('foo');
+		expect(primaryCount).to.equal(1);
+		expect(secondaryCount).to.equal(0);
+
+		await secondary.emit('foo');
+		expect(primaryCount).to.equal(1);
+		expect(secondaryCount).to.equal(1);
+
+		primary.link(secondary);
+		await secondary.emit('foo');
+		expect(primaryCount).to.equal(1);
+		expect(secondaryCount).to.equal(2);
+
+		await primary.emit('foo');
+		expect(primaryCount).to.equal(2);
+		expect(secondaryCount).to.equal(3);
+
+		primary.unlink(secondary);
+		await primary.emit('foo');
+		expect(primaryCount).to.equal(3);
+		expect(secondaryCount).to.equal(3);
 	});
 
-	it('should link emitted events (prefixed + no match) and unlink', done => {
+	it('should link emitted events (prefixed + no match) and unlink', async () => {
 		const primary = new HookEmitter();
 		const secondary = new HookEmitter();
 		let primaryCount = 0;
@@ -1117,39 +1042,30 @@ describe('link', () => {
 			secondaryCount++;
 		});
 
-		Promise.resolve()
-			.then(() => primary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(secondaryCount).to.equal(0);
-			})
-			.then(() => secondary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(secondaryCount).to.equal(1);
-			})
-			.then(() => primary.link(secondary, 'baz:'))
-			.then(() => secondary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(secondaryCount).to.equal(2);
-			})
-			.then(() => primary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(2);
-				expect(secondaryCount).to.equal(2);
-			})
-			.then(() => primary.unlink(secondary))
-			.then(() => primary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(3);
-				expect(secondaryCount).to.equal(2);
-			})
-			.then(() => done())
-			.catch(done);
+		await primary.emit('foo');
+		expect(primaryCount).to.equal(1);
+		expect(secondaryCount).to.equal(0);
+
+		await secondary.emit('foo');
+		expect(primaryCount).to.equal(1);
+		expect(secondaryCount).to.equal(1);
+
+		primary.link(secondary, 'baz:');
+		await secondary.emit('foo');
+		expect(primaryCount).to.equal(1);
+		expect(secondaryCount).to.equal(2);
+
+		await primary.emit('foo');
+		expect(primaryCount).to.equal(2);
+		expect(secondaryCount).to.equal(2);
+
+		primary.unlink(secondary);
+		await primary.emit('foo');
+		expect(primaryCount).to.equal(3);
+		expect(secondaryCount).to.equal(2);
 	});
 
-	it('should link emitted events (prefixed + match) and unlink', done => {
+	it('should link emitted events (prefixed + match) and unlink', async () => {
 		const primary = new HookEmitter();
 		const secondary = new HookEmitter();
 		let primaryCount = 0;
@@ -1163,39 +1079,30 @@ describe('link', () => {
 			secondaryCount++;
 		});
 
-		Promise.resolve()
-			.then(() => primary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(secondaryCount).to.equal(0);
-			})
-			.then(() => secondary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(secondaryCount).to.equal(0);
-			})
-			.then(() => primary.link(secondary, 'baz:'))
-			.then(() => secondary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(secondaryCount).to.equal(0);
-			})
-			.then(() => primary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(2);
-				expect(secondaryCount).to.equal(1);
-			})
-			.then(() => primary.unlink(secondary))
-			.then(() => primary.emit('foo'))
-			.then(() => {
-				expect(primaryCount).to.equal(3);
-				expect(secondaryCount).to.equal(1);
-			})
-			.then(() => done())
-			.catch(done);
+		await primary.emit('foo');
+		expect(primaryCount).to.equal(1);
+		expect(secondaryCount).to.equal(0);
+
+		await secondary.emit('foo');
+		expect(primaryCount).to.equal(1);
+		expect(secondaryCount).to.equal(0);
+
+		primary.link(secondary, 'baz:');
+		await secondary.emit('foo');
+		expect(primaryCount).to.equal(1);
+		expect(secondaryCount).to.equal(0);
+
+		await primary.emit('foo');
+		expect(primaryCount).to.equal(2);
+		expect(secondaryCount).to.equal(1);
+
+		primary.unlink(secondary);
+		await primary.emit('foo');
+		expect(primaryCount).to.equal(3);
+		expect(secondaryCount).to.equal(1);
 	});
 
-	it('should link emitted hooks (no-prefix) and unlink', done => {
+	it('should link emitted hooks (no-prefix) and unlink', async () => {
 		const primary = new HookEmitter();
 		const secondary = new HookEmitter();
 		let primaryCount = 0;
@@ -1219,49 +1126,42 @@ describe('link', () => {
 			secondaryHookCount++;
 		});
 
-		Promise.resolve()
-			.then(() => primaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(primaryHookCount).to.equal(1);
-				expect(secondaryCount).to.equal(0);
-				expect(secondaryHookCount).to.equal(0);
-			})
-			.then(() => secondaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(primaryHookCount).to.equal(1);
-				expect(secondaryCount).to.equal(1);
-				expect(secondaryHookCount).to.equal(1);
-			})
-			.then(() => primary.link(secondary))
-			.then(() => secondaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(primaryHookCount).to.equal(1);
-				expect(secondaryCount).to.equal(2);
-				expect(secondaryHookCount).to.equal(2);
-			})
-			.then(() => primaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(2);
-				expect(primaryHookCount).to.equal(2);
-				expect(secondaryCount).to.equal(2);
-				expect(secondaryHookCount).to.equal(3);
-			})
-			.then(() => primary.unlink(secondary))
-			.then(() => primaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(3);
-				expect(primaryHookCount).to.equal(3);
-				expect(secondaryCount).to.equal(2);
-				expect(secondaryHookCount).to.equal(3);
-			})
-			.then(() => done())
-			.catch(done);
+		await primaryHookFn();
+		expect(primaryCount).to.equal(1);
+		expect(primaryHookCount).to.equal(1);
+		expect(secondaryCount).to.equal(0);
+		expect(secondaryHookCount).to.equal(0);
+
+		await secondaryHookFn();
+		expect(primaryCount).to.equal(1);
+		expect(primaryHookCount).to.equal(1);
+		expect(secondaryCount).to.equal(1);
+		expect(secondaryHookCount).to.equal(1);
+
+		primary.link(secondary);
+		await secondaryHookFn();
+
+		expect(primaryCount).to.equal(1);
+		expect(primaryHookCount).to.equal(1);
+		expect(secondaryCount).to.equal(2);
+		expect(secondaryHookCount).to.equal(2);
+
+		await primaryHookFn();
+		expect(primaryCount).to.equal(2);
+		expect(primaryHookCount).to.equal(2);
+		expect(secondaryCount).to.equal(2);
+		expect(secondaryHookCount).to.equal(3);
+
+		primary.unlink(secondary);
+
+		await primaryHookFn();
+		expect(primaryCount).to.equal(3);
+		expect(primaryHookCount).to.equal(3);
+		expect(secondaryCount).to.equal(2);
+		expect(secondaryHookCount).to.equal(3);
 	});
 
-	it('should link emitted hooks (prefixed + no match) and unlink', done => {
+	it('should link emitted hooks (prefixed + no match) and unlink', async () => {
 		const primary = new HookEmitter();
 		const secondary = new HookEmitter();
 		let primaryCount = 0;
@@ -1285,49 +1185,40 @@ describe('link', () => {
 			secondaryHookCount++;
 		});
 
-		Promise.resolve()
-			.then(() => primaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(primaryHookCount).to.equal(1);
-				expect(secondaryCount).to.equal(0);
-				expect(secondaryHookCount).to.equal(0);
-			})
-			.then(() => secondaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(primaryHookCount).to.equal(1);
-				expect(secondaryCount).to.equal(1);
-				expect(secondaryHookCount).to.equal(1);
-			})
-			.then(() => primary.link(secondary, 'baz:'))
-			.then(() => secondaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(primaryHookCount).to.equal(1);
-				expect(secondaryCount).to.equal(2);
-				expect(secondaryHookCount).to.equal(2);
-			})
-			.then(() => primaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(2);
-				expect(primaryHookCount).to.equal(2);
-				expect(secondaryCount).to.equal(2);
-				expect(secondaryHookCount).to.equal(2);
-			})
-			.then(() => primary.unlink(secondary))
-			.then(() => primaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(3);
-				expect(primaryHookCount).to.equal(3);
-				expect(secondaryCount).to.equal(2);
-				expect(secondaryHookCount).to.equal(2);
-			})
-			.then(() => done())
-			.catch(done);
+		await primaryHookFn();
+		expect(primaryCount).to.equal(1);
+		expect(primaryHookCount).to.equal(1);
+		expect(secondaryCount).to.equal(0);
+		expect(secondaryHookCount).to.equal(0);
+
+		await secondaryHookFn();
+		expect(primaryCount).to.equal(1);
+		expect(primaryHookCount).to.equal(1);
+		expect(secondaryCount).to.equal(1);
+		expect(secondaryHookCount).to.equal(1);
+
+		primary.link(secondary, 'baz:');
+		await secondaryHookFn();
+		expect(primaryCount).to.equal(1);
+		expect(primaryHookCount).to.equal(1);
+		expect(secondaryCount).to.equal(2);
+		expect(secondaryHookCount).to.equal(2);
+
+		await primaryHookFn();
+		expect(primaryCount).to.equal(2);
+		expect(primaryHookCount).to.equal(2);
+		expect(secondaryCount).to.equal(2);
+		expect(secondaryHookCount).to.equal(2);
+
+		primary.unlink(secondary);
+		await primaryHookFn();
+		expect(primaryCount).to.equal(3);
+		expect(primaryHookCount).to.equal(3);
+		expect(secondaryCount).to.equal(2);
+		expect(secondaryHookCount).to.equal(2);
 	});
 
-	it('should link emitted hooks (prefixed + match) and unlink', done => {
+	it('should link emitted hooks (prefixed + match) and unlink', async () => {
 		const primary = new HookEmitter();
 		const secondary = new HookEmitter();
 		let primaryCount = 0;
@@ -1351,46 +1242,37 @@ describe('link', () => {
 			secondaryHookCount++;
 		});
 
-		Promise.resolve()
-			.then(() => primaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(primaryHookCount).to.equal(1);
-				expect(secondaryCount).to.equal(0);
-				expect(secondaryHookCount).to.equal(0);
-			})
-			.then(() => secondaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(primaryHookCount).to.equal(1);
-				expect(secondaryCount).to.equal(1);
-				expect(secondaryHookCount).to.equal(1);
-			})
-			.then(() => primary.link(secondary, 'baz:'))
-			.then(() => secondaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(1);
-				expect(primaryHookCount).to.equal(1);
-				expect(secondaryCount).to.equal(2);
-				expect(secondaryHookCount).to.equal(2);
-			})
-			.then(() => primaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(2);
-				expect(primaryHookCount).to.equal(2);
-				expect(secondaryCount).to.equal(2);
-				expect(secondaryHookCount).to.equal(3);
-			})
-			.then(() => primary.unlink(secondary))
-			.then(() => primaryHookFn())
-			.then(() => {
-				expect(primaryCount).to.equal(3);
-				expect(primaryHookCount).to.equal(3);
-				expect(secondaryCount).to.equal(2);
-				expect(secondaryHookCount).to.equal(3);
-			})
-			.then(() => done())
-			.catch(done);
+		await primaryHookFn();
+		expect(primaryCount).to.equal(1);
+		expect(primaryHookCount).to.equal(1);
+		expect(secondaryCount).to.equal(0);
+		expect(secondaryHookCount).to.equal(0);
+
+		await secondaryHookFn();
+		expect(primaryCount).to.equal(1);
+		expect(primaryHookCount).to.equal(1);
+		expect(secondaryCount).to.equal(1);
+		expect(secondaryHookCount).to.equal(1);
+
+		primary.link(secondary, 'baz:');
+		await secondaryHookFn();
+		expect(primaryCount).to.equal(1);
+		expect(primaryHookCount).to.equal(1);
+		expect(secondaryCount).to.equal(2);
+		expect(secondaryHookCount).to.equal(2);
+
+		await primaryHookFn();
+		expect(primaryCount).to.equal(2);
+		expect(primaryHookCount).to.equal(2);
+		expect(secondaryCount).to.equal(2);
+		expect(secondaryHookCount).to.equal(3);
+
+		primary.unlink(secondary);
+		await primaryHookFn();
+		expect(primaryCount).to.equal(3);
+		expect(primaryHookCount).to.equal(3);
+		expect(secondaryCount).to.equal(2);
+		expect(secondaryHookCount).to.equal(3);
 	});
 
 	it('should throw exception if link() argument is not a HookEmitter', () => {

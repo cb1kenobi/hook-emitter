@@ -8,9 +8,7 @@
 [![Deps][david-image]][david-url]
 [![Dev Deps][david-dev-image]][david-dev-url]
 
-Promised-based chained event emitter with ability to wrap functions.
-
-> Note: hook-emitter requires Node.js 4 or newer.
+Promised-based chained event emitter with ability to create hooks around functions.
 
 ## Installation
 
@@ -35,7 +33,7 @@ emitter.on('sum', (x, y) => {
 });
 
 // emit and wait for all listeners to be called
-emitter.emit('sum', 3, 7);
+await emitter.emit('sum', 3, 7);
 ```
 
 Hook example:
@@ -65,11 +63,8 @@ emitter.on('sum', async (x, y, next) => {
 	return r;
 });
 
-hookedSum(3, 7)
-    .then(result => {
-        console.log('The sum of (6 + 14) * 2 = ' + result);
-    })
-    .catch(err => console.error);
+const result = await hookedSum(3, 7);
+console.log('The sum of (6 + 14) * 2 = ' + result);
 ```
 
 Chaining multiple hooked functions example:
@@ -77,17 +72,17 @@ Chaining multiple hooked functions example:
 ```javascript
 const emitter = new HookEmitter();
 
-Promise.resolve()
-    .then(emitter.hook('step1', () => {
-        console.log('step 1');
-    }))
-    .then(emitter.hook('step2', () => {
-        console.log('step 2');
-    }))
-    .then(emitter.hook('step3', () => {
-        console.log('step 3');
-    }))
-    .catch(err => console.error);
+await emitter.hook('step1', () => {
+    console.log('step 1');
+})();
+
+await emitter.hook('step2', () => {
+    console.log('step 2');
+})();
+
+await emitter.hook('step3', () => {
+    console.log('step 3');
+})();
 ```
 
 ## API
@@ -197,27 +192,7 @@ Unlinks another `HookEmitter` from this instance. It does the opposite of
 
 ## License
 
-(The MIT License)
-
-Copyright (c) 2015-2016 Chris Barber
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+MIT
 
 [npm-image]: https://img.shields.io/npm/v/hook-emitter.svg
 [npm-url]: https://npmjs.org/package/hook-emitter

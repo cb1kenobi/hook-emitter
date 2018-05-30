@@ -7,7 +7,10 @@
         "console": false,
         "describe": false,
         "expect": false,
-        "it": false
+        "it": false,
+        "spy": false,
+        "stub": false,
+        "sinon": false
     },
     "rules": {
         "no-unused-vars": 0
