@@ -51,8 +51,8 @@ gulp.task('docs', ['lint-src', 'clean-docs'], () => {
 					brand: {
 						title:       manifest.name,
 						description: manifest.description,
-						respository: 'https://github.com/cb1kenobi/cli-kit',
-						site:        'https://github.com/cb1kenobi/cli-kit'
+						respository: 'https://github.com/cb1kenobi/hook-emitter',
+						site:        'https://github.com/cb1kenobi/hook-emitter'
 					}
 				}
 			},
