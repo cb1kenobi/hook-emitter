@@ -1,9 +1,9 @@
-import snooplogg from 'snooplogg';
-
 /* istanbul ignore if */
 if (!Error.prepareStackTrace) {
 	require('source-map-support/register');
 }
+
+import snooplogg from 'snooplogg';
 
 const { log } = snooplogg('hook-emitter');
 
@@ -266,7 +266,7 @@ class HookEmitter {
 							.catch(reject);
 					} ];
 
-					log(`calling listener ${i}`, args);
+					log(`calling listener ${i}`);
 
 					// call the listener
 					let result = listener.apply(ctx, args);
@@ -351,12 +351,12 @@ class HookEmitter {
 				ctx
 			};
 
-			log('creating chain', data);
+			log(`creating chain: ${event}`);
 
 			const chain = this.compose({
 				type: event,
 				callback: async function (...args) {
-					log('firing callback', this);
+					log('firing callback...');
 					this.result = await this.fn.apply(this.ctx, this.args);
 					log('callback result =', this.result);
 					return this;

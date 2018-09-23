@@ -1,12 +1,10 @@
 # hook-emitter
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/cb1kenobi/hook-emitter.svg)](https://greenkeeper.io/)
-
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
 [![Travis CI Build][travis-image]][travis-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
-[![Code Climate][codeclimate-image]][codeclimate-url]
+[![Greenkeeper badge][greenkeeper-image]][greenkeeper-url]
 [![Deps][david-image]][david-url]
 [![Dev Deps][david-dev-image]][david-dev-url]
 
@@ -20,7 +18,7 @@ Promised-based chained event emitter with ability to create hooks around functio
 
 Async listener example:
 
-```javascript
+```js
 import HookEmitter from 'hook-emitter';
 
 const emitter = new HookEmitter();
@@ -40,7 +38,7 @@ await emitter.emit('sum', 3, 7);
 
 Hook example:
 
-```javascript
+```js
 const emitter = new HookEmitter();
 
 const hookedSum = emitter.hook('sum', (x, y) => {
@@ -71,7 +69,7 @@ console.log('The sum of (6 + 14) * 2 = ' + result);
 
 Chaining multiple hooked functions example:
 
-```javascript
+```js
 const emitter = new HookEmitter();
 
 await emitter.hook('step1', () => {
@@ -164,7 +162,7 @@ access:
    is async, then this will be `undefined` and the actual result will be returned
    by the promise chain.
 
-```javascript
+```js
 emitter.on('foo', function (x, y, next) {
 	console.log('event type:', this.type);
 	console.log('args:', this.args);
@@ -204,8 +202,8 @@ MIT
 [travis-url]: https://travis-ci.org/cb1kenobi/hook-emitter
 [coveralls-image]: https://img.shields.io/coveralls/cb1kenobi/hook-emitter/master.svg
 [coveralls-url]: https://coveralls.io/r/cb1kenobi/hook-emitter
-[codeclimate-image]: https://img.shields.io/codeclimate/github/cb1kenobi/hook-emitter.svg
-[codeclimate-url]: https://codeclimate.com/github/cb1kenobi/hook-emitter
+[greenkeeper-image]: https://badges.greenkeeper.io/cb1kenobi/hook-emitter.svg
+[greenkeeper-url]: https://greenkeeper.io/
 [david-image]: https://img.shields.io/david/cb1kenobi/hook-emitter.svg
 [david-url]: https://david-dm.org/cb1kenobi/hook-emitter
 [david-dev-image]: https://img.shields.io/david/dev/cb1kenobi/hook-emitter.svg

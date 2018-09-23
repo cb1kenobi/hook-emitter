@@ -15,6 +15,7 @@
         "sourceType": "module"
     },
     "plugins": [
+        "mocha",
         "security"
     ],
     "root": true,

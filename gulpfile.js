@@ -1,20 +1,22 @@
 'use strict';
 
-const $ = require('gulp-load-plugins')();
-const fs = require('fs-extra');
-const gulp = require('gulp');
-const manifest = require('./package.json');
-const path = require('path');
-const spawnSync = require('child_process').spawnSync;
+const $           = require('gulp-load-plugins')();
+const ansiColors  = require('ansi-colors');
+const fs          = require('fs-extra');
+const gulp        = require('gulp');
+const log         = require('fancy-log');
+const manifest    = require('./package.json');
+const path        = require('path');
+const spawnSync   = require('child_process').spawnSync;
 
 const coverageDir = path.join(__dirname, 'coverage');
-const distDir = path.join(__dirname, 'dist');
-const docsDir = path.join(__dirname, 'docs');
+const distDir     = path.join(__dirname, 'dist');
+const docsDir     = path.join(__dirname, 'docs');
 
 /*
  * Clean tasks
  */
-gulp.task('clean', ['clean-coverage', 'clean-dist', 'clean-docs']);
+gulp.task('clean', [ 'clean-coverage', 'clean-dist', 'clean-docs' ]);
 
 gulp.task('clean-coverage', cb => fs.remove(coverageDir, cb));
 
@@ -25,7 +27,7 @@ gulp.task('clean-docs', cb => fs.remove(docsDir, cb));
 /*
  * build tasks
  */
-gulp.task('build', ['clean-dist', 'lint-src'], () => {
+gulp.task('build', [ 'clean-dist', 'lint-src' ], () => {
 	return gulp
 		.src('src/**/*.js')
 		.pipe($.plumber())
@@ -38,7 +40,7 @@ gulp.task('build', ['clean-dist', 'lint-src'], () => {
 		.pipe(gulp.dest(distDir));
 });
 
-gulp.task('docs', ['lint-src', 'clean-docs'], () => {
+gulp.task('docs', [ 'lint-src', 'clean-docs' ], () => {
 	const esdoc = require('esdoc').default;
 
 	esdoc.generate({
@@ -85,10 +87,10 @@ gulp.task('lint-test', () => lint('test/**/test-*.js'));
 /*
  * test tasks
  */
-gulp.task('test', ['build', 'lint-test', 'build'], () => runTests());
-gulp.task('test-only', ['lint-test', 'build'], () => runTests());
-gulp.task('coverage', ['clean-coverage', 'lint-src', 'lint-test', 'build'], () => runTests(true));
-gulp.task('coverage-only', ['clean-coverage', 'lint-test', 'build'], () => runTests(true));
+gulp.task('test',          [ 'build', 'lint-test', 'build' ],                     () => runTests());
+gulp.task('test-only',     [ 'lint-test', 'build' ],                              () => runTests());
+gulp.task('coverage',      [ 'clean-coverage', 'lint-src', 'lint-test', 'build'], () => runTests(true));
+gulp.task('coverage-only', [ 'clean-coverage', 'lint-test', 'build' ],            () => runTests(true));
 
 function runTests(cover) {
 	const args = [];
@@ -112,6 +114,7 @@ function runTests(cover) {
 			//   https://github.com/istanbuljs/istanbuljs/tree/master/packages/istanbul-reports/lib
 			'--reporter=html',
 			'--reporter=json',
+			'--reporter=lcov',
 			'--reporter=text',
 			'--reporter=text-summary',
 			'--require', path.join(__dirname, 'test', 'transpile.js'),
@@ -158,7 +161,7 @@ function runTests(cover) {
 		args.push('test/**/test-*.js');
 	}
 
-	$.util.log('Running: ' + $.util.colors.cyan(execPath + ' ' + args.join(' ')));
+	log('Running: ' + ansiColors.cyan(execPath + ' ' + args.join(' ')));
 
 	// run!
 	if (spawnSync(execPath, args, { stdio: 'inherit' }).status) {
