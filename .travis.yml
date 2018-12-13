@@ -5,7 +5,7 @@ node_js:
 os: linux
 sudo: false
 before_install:
-  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
+  - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH=$HOME/.yarn/bin:$PATH
 cache:
   yarn: true
@@ -14,4 +14,3 @@ before_script: sh -c "git log | head -12"
 script: yarn run coverage
 after_success:
   - coveralls < ./coverage/lcov.info
-  - CODECLIMATE_REPO_TOKEN=806f15584a6f15bbb05aa7e85cfd4ec90de61b4c91d995014b4a669c35311fdb codeclimate-test-reporter < ./coverage/lcov.info
