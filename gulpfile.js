@@ -42,7 +42,7 @@ exports.lint = parallel(lintSrc, lintTest);
 /*
  * build tasks
  */
-async function build() {
+function build() {
 	return gulp
 		.src('src/**/*.js')
 		.pipe($.plumber())
