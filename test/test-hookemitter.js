@@ -861,7 +861,7 @@ describe('hook', () => {
 					obj.args[0] += 'c';
 					obj.args[1]++;
 					obj.sally = true;
-					next(obj).then(resolve, reject);
+					next(obj).then(resolve).catch(reject);
 				}, 250);
 			});
 		});
