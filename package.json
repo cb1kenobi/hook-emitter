@@ -25,11 +25,11 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "snooplogg": "^2.0.0",
+    "snooplogg": "^2.0.1",
     "source-map-support": "^0.5.9"
   },
   "devDependencies": {
-    "@babel/core": "^7.2.0",
+    "@babel/core": "^7.2.2",
     "@babel/plugin-transform-modules-commonjs": "^7.2.0",
     "@babel/register": "^7.0.0",
     "ansi-colors": "^3.2.3",

@@ -184,7 +184,7 @@ function resolveModule(name) {
 	}
 }
 
-exports.test             = series(parallel(lintTest, build),                () => runTests());
-exports['test-only']     = series(lintTest,                                 () => runTests());
-exports.coverage         = series(parallel(cleanCoverage, lintTest, build), () => runTests(true));
-exports['coverage-only'] = series(parallel(cleanCoverage, lintTest),        () => runTests(true));
+exports.test             = series(parallel(lintTest, build),                function test() { return runTests(); });
+exports['test-only']     = series(lintTest,                                 function test() { return runTests(); });
+exports.coverage         = series(parallel(cleanCoverage, lintTest, build), function test() { return runTests(true); });
+exports['coverage-only'] = series(parallel(cleanCoverage, lintTest),        function test() { return runTests(true); });
