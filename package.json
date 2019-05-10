@@ -56,7 +56,7 @@
     "gulp-plumber": "^1.2.1",
     "gulp-sourcemaps": "^2.6.4",
     "mocha": "^5.2.0",
-    "nyc": "^13.1.0"
+    "nyc": "^14.1.1"
   },
   "homepage": "https://github.com/cb1kenobi/hook-emitter",
   "bugs": "https://github.com/cb1kenobi/hook-emitter/issues",
