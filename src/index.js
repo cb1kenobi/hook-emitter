@@ -3,14 +3,10 @@ if (!Error.prepareStackTrace) {
 	require('source-map-support/register');
 }
 
-import snooplogg from 'snooplogg';
-
-const { log } = snooplogg('hook-emitter');
-
 /**
  * Emits events and hooks to synchronous and asynchronous listeners.
  */
-class HookEmitter {
+export class HookEmitter {
 	/**
 	 * Constructs an HookEmitter object.
 	 *
@@ -232,8 +228,6 @@ class HookEmitter {
 				listeners.push(callback);
 			}
 
-			log(`running chain with ${listeners.length} listeners`);
-
 			// start the chain and return its promise
 			return dispatch({
 				type: type,
@@ -243,7 +237,6 @@ class HookEmitter {
 			function dispatch(payload, i) {
 				let listener = listeners[i];
 				if (!listener) {
-					log('end of the line');
 					return Promise.resolve(payload);
 				}
 
@@ -253,7 +246,6 @@ class HookEmitter {
 					// construct the args
 					const args = [ ...(Array.isArray(payload.args) ? payload.args : [ payload.args ]), function next(result) {
 						if (fired) {
-							log('next() already fired');
 							return;
 						}
 
@@ -266,13 +258,8 @@ class HookEmitter {
 							.catch(reject);
 					} ];
 
-					log(`calling listener ${i}`);
-
 					// call the listener
 					let result = listener.apply(ctx, args);
-
-					log('listener returned:', result);
-
 					if (result === undefined && fired) {
 						result = Promise.resolve();
 					}
@@ -351,14 +338,10 @@ class HookEmitter {
 				ctx
 			};
 
-			log(`creating chain: ${event}`);
-
 			const chain = this.compose({
 				type: event,
 				callback: async function (...args) {
-					log('firing callback...');
 					this.result = await this.fn.apply(this.ctx, this.args);
-					log('callback result =', this.result);
 					return this;
 				},
 				transform: (result, data) => result || data
@@ -411,5 +394,4 @@ class HookEmitter {
 	}
 }
 
-export { HookEmitter };
 export default HookEmitter;
