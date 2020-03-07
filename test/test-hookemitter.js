@@ -988,6 +988,22 @@ describe('hook', () => {
 			emitter.hook('foo', {}, {});
 		}).to.throw('Expected hooked function to be a function.');
 	});
+
+	it('should preserve return value if hook callbacks forget to return it', async () => {
+		let emitter = new HookEmitter();
+
+		function add(x, y) {
+			return x + y;
+		}
+
+		let hookFn = emitter.hook('add', add);
+
+		emitter.on('add', async (x, y, next) => {
+			await next();
+		});
+
+		expect(await hookFn(7, 13)).to.equal(20);
+	});
 });
 
 describe('link', () => {

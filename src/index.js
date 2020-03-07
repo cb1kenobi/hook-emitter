@@ -242,6 +242,7 @@ export class HookEmitter {
 
 				return new Promise((resolve, reject) => {
 					let fired = false;
+					let innerResult;
 
 					// construct the args
 					const args = [ ...(Array.isArray(payload.args) ? payload.args : [ payload.args ]), function next(result) {
@@ -254,7 +255,7 @@ export class HookEmitter {
 						// if somebody mixes paradigms and calls next().then(),
 						// at least their function will wait for the next listener
 						return dispatch(result || payload, i + 1)
-							.then(result => result || payload)
+							.then(result => (innerResult = result || payload))
 							.catch(reject);
 					} ];
 
@@ -268,7 +269,7 @@ export class HookEmitter {
 					if (result instanceof Promise) {
 						return result
 							.then(result => {
-								result = transform(result, payload);
+								result = transform(fired && innerResult || result, payload);
 								return fired ? result : dispatch(result, i + 1);
 							})
 							.then(resolve)
