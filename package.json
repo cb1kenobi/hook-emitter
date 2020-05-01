@@ -1,6 +1,6 @@
 {
   "name": "hook-emitter",
-  "version": "5.0.0",
+  "version": "4.1.0",
   "description": "Event emitter with support for asynchronous handlers and a sweet function hook mechanism.",
   "main": "./dist/index.js",
   "author": "Chris Barber <chris@cb1inc.com> (https://github.com/cb1kenobi)",
@@ -61,6 +61,6 @@
   "bugs": "https://github.com/cb1kenobi/hook-emitter/issues",
   "repository": "https://github.com/cb1kenobi/hook-emitter",
   "engines": {
-    "node": ">=10"
+    "node": ">=8"
   }
 }
