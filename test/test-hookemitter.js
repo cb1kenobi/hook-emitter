@@ -603,21 +603,11 @@ describe('emit', () => {
 		expect(count).to.equal(3);
 	});
 
-	it('should throw exception if event is invalid', () => {
-		expect(() => {
-			let emitter = new HookEmitter();
-			emitter.emit();
-		}).to.throw('Expected event name to be a valid string.');
-
-		expect(() => {
-			let emitter = new HookEmitter();
-			emitter.emit(123);
-		}).to.throw('Expected event name to be a valid string.');
-
-		expect(() => {
-			let emitter = new HookEmitter();
-			emitter.emit('');
-		}).to.throw('Expected event name to be a valid string.');
+	it('should throw exception if event is invalid', async () => {
+		const emitter = new HookEmitter();
+		await expect(emitter.emit()).to.eventually.be.rejectedWith(TypeError, 'Expected event name to be a valid string.');
+		await expect(emitter.emit(123)).to.eventually.be.rejectedWith(TypeError, 'Expected event name to be a valid string.');
+		await expect(emitter.emit('')).to.eventually.be.rejectedWith(TypeError, 'Expected event name to be a valid string.');
 	});
 
 	it('should be ok if next is called multiple times', async () => {

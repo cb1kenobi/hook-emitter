@@ -292,12 +292,12 @@ export class HookEmitter {
 	 * @returns {Promise}
 	 * @access public
 	 */
-	emit(event, ...args) {
+	async emit(event, ...args) {
 		if (!event || typeof event !== 'string') {
 			throw new TypeError('Expected event name to be a valid string.');
 		}
 
-		return this.compose({
+		return await this.compose({
 			type: event
 		}).apply(this, args);
 	}
