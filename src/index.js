@@ -1,8 +1,3 @@
-/* istanbul ignore if */
-if (!Error.prepareStackTrace) {
-	require('source-map-support/register');
-}
-
 /**
  * Emits events and hooks to synchronous and asynchronous listeners.
  */

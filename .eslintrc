@@ -4,13 +4,8 @@
         "node": true
     },
     "extends": "eslint:recommended",
-    "globals": {
-    },
-    "parser": "babel-eslint",
     "parserOptions": {
-        "ecmaFeatures": {
-            "modules": true
-        },
+        "ecmaVersion": "2021",
         "sourceType": "module"
     },
     "plugins": [
@@ -21,7 +16,7 @@
     ],
     "root": true,
     "rules": {
-        "array-bracket-spacing": [ 'warn', 'always' ],
+        "array-bracket-spacing": [ "warn", "always" ],
         "brace-style": [ 2, "1tbs", { "allowSingleLine": true } ],
         "camelcase": "off",
         "chai-expect/missing-assertion": "error",
