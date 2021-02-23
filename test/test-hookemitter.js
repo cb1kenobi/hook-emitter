@@ -1299,4 +1299,125 @@ describe('link', () => {
 			emitter.unlink('foo');
 		}).to.throw('Expected argument to be a HookEmitter.');
 	});
+
+	it('should link nested emitted events', async () => {
+		let aCount = 0;
+		let bCount = 0;
+		let cCount = 0;
+
+		const a = new HookEmitter().on('foo', () => aCount++);
+		const b = new HookEmitter().on('foo', () => bCount++);
+		const c = new HookEmitter().on('foo', () => cCount++);
+
+		await a.emit('foo');
+		expect(aCount).to.equal(1);
+		expect(bCount).to.equal(0);
+		expect(cCount).to.equal(0);
+
+		a.link(b);
+
+		await a.emit('foo');
+		expect(aCount).to.equal(2);
+		expect(bCount).to.equal(1);
+		expect(cCount).to.equal(0);
+
+		await b.emit('foo');
+		expect(aCount).to.equal(2);
+		expect(bCount).to.equal(2);
+		expect(cCount).to.equal(0);
+
+		b.link(c);
+
+		await a.emit('foo');
+		expect(aCount).to.equal(3);
+		expect(bCount).to.equal(3);
+		expect(cCount).to.equal(1);
+
+		await b.emit('foo');
+		expect(aCount).to.equal(3);
+		expect(bCount).to.equal(4);
+		expect(cCount).to.equal(2);
+	});
+
+	it('should link nested emitted hooks', async () => {
+		let aCount = 0;
+		let bCount = 0;
+		let cCount = 0;
+
+		let ahCount = 0;
+		let bhCount = 0;
+		let chCount = 0;
+
+		const a = new HookEmitter().on('foo', () => aCount++);
+		const b = new HookEmitter().on('foo', () => bCount++);
+		const c = new HookEmitter().on('foo', () => cCount++);
+
+		a.name = 'a';
+		b.name = 'b';
+		c.name = 'c';
+
+		const afn = a.hook('foo', () => ahCount++);
+		const bfn = b.hook('foo', () => bhCount++);
+		const cfn = c.hook('foo', () => chCount++);
+
+		await afn();
+		expect(ahCount).to.equal(1);
+		expect(bhCount).to.equal(0);
+		expect(chCount).to.equal(0);
+		expect(aCount).to.equal(1);
+		expect(bCount).to.equal(0);
+		expect(cCount).to.equal(0);
+
+		await bfn();
+		expect(ahCount).to.equal(1);
+		expect(bhCount).to.equal(1);
+		expect(chCount).to.equal(0);
+		expect(aCount).to.equal(1);
+		expect(bCount).to.equal(1);
+		expect(cCount).to.equal(0);
+
+		a.link(b);
+
+		await afn();
+		expect(ahCount).to.equal(2);
+		expect(bhCount).to.equal(1);
+		expect(chCount).to.equal(0);
+		expect(aCount).to.equal(2);
+		expect(bCount).to.equal(2);
+		expect(cCount).to.equal(0);
+
+		await bfn();
+		expect(ahCount).to.equal(2);
+		expect(bhCount).to.equal(2);
+		expect(chCount).to.equal(0);
+		expect(aCount).to.equal(2);
+		expect(bCount).to.equal(3);
+		expect(cCount).to.equal(0);
+
+		b.link(c);
+
+		await afn();
+		expect(ahCount).to.equal(3);
+		expect(bhCount).to.equal(2);
+		expect(chCount).to.equal(0);
+		expect(aCount).to.equal(3);
+		expect(bCount).to.equal(4);
+		expect(cCount).to.equal(1);
+
+		await bfn();
+		expect(ahCount).to.equal(3);
+		expect(bhCount).to.equal(3);
+		expect(chCount).to.equal(0);
+		expect(aCount).to.equal(3);
+		expect(bCount).to.equal(5);
+		expect(cCount).to.equal(2);
+
+		await cfn();
+		expect(ahCount).to.equal(3);
+		expect(bhCount).to.equal(3);
+		expect(chCount).to.equal(1);
+		expect(aCount).to.equal(3);
+		expect(bCount).to.equal(5);
+		expect(cCount).to.equal(3);
+	});
 });

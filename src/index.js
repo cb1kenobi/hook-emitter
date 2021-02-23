@@ -187,24 +187,31 @@ export class HookEmitter {
 			// listener in the chain
 			transform = (result, payload) => ({
 				type: payload.type,
-				args: result || payload.args
+				args: result !== undefined ? result : payload.args
 			});
 		}
 
 		// create the function that fetches the events since the list of
 		// listeners may change before the hook is called
 		const getListeners = () => {
-			const listeners = this._events.get(type) || [];
+			let listeners = this._events.get(type) || [];
 			if (!Array.isArray(listeners)) {
 				throw new TypeError('Expected listeners to be an array.');
 			}
 
-			const linkedListeners = this._links.map(link => {
-				return link.emitter.events.get((link.prefix || '') + type) || [];
-			});
+			// clone the listeners
+			listeners = [ ...listeners ];
+
+			for (const link of this._links) {
+				listeners.push({
+					listener: link.emitter.compose({
+						type: (link.prefix || '') + type
+					}),
+					priority: 0
+				});
+			}
 
 			return listeners
-				.concat.apply(listeners, linkedListeners)
 				.sort((a, b) => b.priority - a.priority)
 				.map(p => {
 					if (typeof p.listener !== 'function') {
@@ -250,7 +257,7 @@ export class HookEmitter {
 						// if somebody mixes paradigms and calls next().then(),
 						// at least their function will wait for the next listener
 						return dispatch(result || payload, i + 1)
-							.then(result => (innerResult = result || payload))
+							.then(result => (innerResult = result !== undefined ? result : payload))
 							.catch(reject);
 					} ];
 
@@ -264,7 +271,7 @@ export class HookEmitter {
 					if (result instanceof Promise) {
 						return result
 							.then(result => {
-								result = transform(fired && innerResult || result, payload);
+								result = transform(fired && innerResult !== undefined ? innerResult : result, payload);
 								return fired ? result : dispatch(result, i + 1);
 							})
 							.then(resolve)
@@ -340,7 +347,7 @@ export class HookEmitter {
 					this.result = await this.fn.apply(this.ctx, this.args);
 					return this;
 				},
-				transform: (result, data) => result || data
+				transform: (result, data) => result !== undefined ? result : data
 			});
 
 			return chain.apply(data, data.args).then(data => data.result);
