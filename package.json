@@ -20,9 +20,9 @@
   ],
   "scripts": {
     "coverage": "c8 npm run test",
-    "lint": "eslint src",
+    "lint": "eslint src test",
     "prepack": "npm run lint",
-    "test": "eslint src test && mocha test/**/test-*.js --reporter spec"
+    "test": "npm run test && mocha test/**/test-*.js --reporter spec"
   },
   "devDependencies": {
     "c8": "^7.6.0",
