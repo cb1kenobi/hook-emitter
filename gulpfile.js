@@ -131,7 +131,7 @@ async function runTests(cover) {
 	args.push(path.join(mocha, 'bin', 'mocha'));
 
 	// add --inspect
-	if (process.argv.indexOf('--inspect') !== -1 || process.argv.indexOf('--inspect-brk') !== -1) {
+	if (process.argv.indexOf('--debug') !== -1 || process.argv.indexOf('--inspect') !== -1 || process.argv.indexOf('--inspect-brk') !== -1) {
 		args.push('--inspect-brk');
 	}
 
