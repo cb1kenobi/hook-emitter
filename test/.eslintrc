@@ -13,6 +13,7 @@
         "sinon": false
     },
     "rules": {
+        "no-debugger": "warn",
         "no-unused-vars": 0
     }
 }
