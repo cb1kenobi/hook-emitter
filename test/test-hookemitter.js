@@ -1,4 +1,9 @@
-import HookEmitter from '../dist/index';
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import HookEmitter from '../src/index.js';
+
+chai.use(chaiAsPromised);
+const { expect } = chai;
 
 describe('on', () => {
 	it('should not have any listeners', () => {
