@@ -1,6 +1,6 @@
 {
   "name": "hook-emitter",
-  "version": "5.0.1",
+  "version": "6.0.0",
   "description": "Event emitter with support for asynchronous handlers and a sweet function hook mechanism.",
   "type": "module",
   "exports": "./src/index.js",
@@ -39,6 +39,6 @@
   "bugs": "https://github.com/cb1kenobi/hook-emitter/issues",
   "repository": "https://github.com/cb1kenobi/hook-emitter",
   "engines": {
-    "node": ">=12"
+    "node": ">=14.15.0"
   }
 }
