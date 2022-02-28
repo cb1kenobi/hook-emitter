@@ -4,8 +4,6 @@
 [![NPM Downloads][downloads-image]][downloads-url]
 [![Travis CI Build][travis-image]][travis-url]
 [![Appveyor CI Build][appveyor-image]][appveyor-url]
-[![Deps][david-image]][david-url]
-[![Dev Deps][david-dev-image]][david-dev-url]
 
 Promised-based chained event emitter with ability to create hooks around functions.
 
@@ -199,9 +197,3 @@ MIT
 [downloads-url]: https://npmjs.org/package/hook-emitter
 [travis-image]: https://travis-ci.org/cb1kenobi/hook-emitter.svg?branch=master
 [travis-url]: https://travis-ci.org/cb1kenobi/hook-emitter
-[appveyor-image]: https://ci.appveyor.com/api/projects/status/dt0q6xcmbydh2t4a?svg=true
-[appveyor-url]: https://ci.appveyor.com/project/cb1kenobi/hook-emitter
-[david-image]: https://img.shields.io/david/cb1kenobi/hook-emitter.svg
-[david-url]: https://david-dm.org/cb1kenobi/hook-emitter
-[david-dev-image]: https://img.shields.io/david/dev/cb1kenobi/hook-emitter.svg
-[david-dev-url]: https://david-dm.org/cb1kenobi/hook-emitter#info=devDependencies

@@ -1,3 +1,8 @@
+# v5.0.1 (Feb 28, 2022)
+
+ * chore: Updated dev dependencies.
+ * chore: Replaced Travis with GitHub action.
+
 # v5.0.0 (Feb 23, 2021)
 
  * BREAKING CHANGE: Changed package to a ES module.

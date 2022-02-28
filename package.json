@@ -1,6 +1,6 @@
 {
   "name": "hook-emitter",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Event emitter with support for asynchronous handlers and a sweet function hook mechanism.",
   "type": "module",
   "exports": "./src/index.js",
@@ -21,19 +21,19 @@
   "scripts": {
     "coverage": "c8 npm run test",
     "lint": "eslint src test",
-    "prepack": "npm run lint",
+    "prepublishOnly": "npm run lint",
     "test": "npm run lint && mocha test/**/test-*.js --reporter spec"
   },
   "devDependencies": {
-    "c8": "^7.6.0",
-    "chai": "^4.3.0",
+    "c8": "^7.11.0",
+    "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^7.20.0",
-    "eslint-plugin-chai-expect": "^2.2.0",
-    "eslint-plugin-mocha": "^8.0.0",
-    "eslint-plugin-promise": "^4.3.1",
+    "eslint": "^8.10.0",
+    "eslint-plugin-chai-expect": "^3.0.0",
+    "eslint-plugin-mocha": "^10.0.3",
+    "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-security": "^1.4.0",
-    "mocha": "^8.3.0"
+    "mocha": "^9.2.1"
   },
   "homepage": "https://github.com/cb1kenobi/hook-emitter",
   "bugs": "https://github.com/cb1kenobi/hook-emitter/issues",
